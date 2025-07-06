@@ -1,1 +1,3 @@
 plugin/
+
+./waybar/.config/waybar/scripts/wifi4wofi
