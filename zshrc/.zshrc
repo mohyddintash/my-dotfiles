@@ -80,3 +80,10 @@ export PGHOST="/var/run/postgresql"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+fpath=(~/.zsh/completions $fpath)
+autoload -Uz compinit && compinit
+
+
+
+#fabric -y "https://www.youtube.com/watch?v=YtaR_I65wmI" --stream --pattern summarize
+#fabric -y "https://www.youtube.com/watch?v=YtaR_I65wmI" --stream --pattern extract_wisdom
