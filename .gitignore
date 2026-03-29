@@ -1,3 +1,7 @@
 plugin/
 
-./waybar/.config/waybar/scripts/wifi4wofi
+# Backup files created by omarchy-refresh-* commands
+*.bak.*
+*.backup
+*.bkp
+*.bkp.*
