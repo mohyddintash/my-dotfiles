@@ -9,6 +9,7 @@
   "modules-center": ["clock"],
   "modules-right": [
     "tray",
+    "hyprland/language",
     "bluetooth", 
     "pulseaudio",
     "network",
@@ -26,6 +27,16 @@
   "tray": {
     "icon-size": 21,
     "spacing": 10
+  },
+  "hyprland/language": {
+    "format": "󰌌 {}",
+    "format-en": "US",
+    "format-ar": "AR",
+    "tooltip": true,
+    "tooltip-format": "Keyboard Layout: {}",
+    "on-click": "hyprctl switchxkblayout 'at-translated-set-2-keyboard' next",
+    "on-scroll-up": "hyprctl switchxkblayout 'at-translated-set-2-keyboard' next",
+    "on-scroll-down": "hyprctl switchxkblayout 'at-translated-set-2-keyboard' prev"
   },
   "clock2": {
     "timezone": "UK/London",

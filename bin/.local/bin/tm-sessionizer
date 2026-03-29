@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Define where your projects are located. Add more paths if needed.
+PROJECT_DIRS="$HOME/dev $HOME/projects $HOME/work"
+
+# Use 'find' to locate directories, then pipe them into 'fzf' for selection.
+# -not -path '*/\.*' excludes hidden directories like .git
+SELECTED=$(find $PROJECT_DIRS -mindepth 1 -maxdepth 2 -type d -not -path '*/\.*' | fzf)
+
+# If fzf returns a selection (i.e., you didn't press Esc),
+# then call your sessionizer script 't' with the selected directory.
+if [[ -n $SELECTED ]]; then
+  tmux-project-bootstrapper "$SELECTED"
+fi

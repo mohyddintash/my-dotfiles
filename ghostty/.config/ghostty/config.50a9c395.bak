@@ -1,5 +1,5 @@
 shell-integration = zsh
-theme = Catppuccin Mocha
+theme = catppuccin-mocha
 # theme = GruvboxDark
 # font-family = Meslo LGS Nerd Font Mono
 # font-family = CaskaydiaMono Nerd Font
@@ -11,4 +11,3 @@ font-size = 16
 gtk-titlebar = false
 # custom-shader = /home/chris/bloom.glsl
 #custom-shader = /home/chris/crt.glsl
-keybind = shift+enter=text:\n

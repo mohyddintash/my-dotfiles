@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Exit if no project directory is provided
+if [ -z "$1" ]; then
+  echo "Please provide a project directory."
+  exit 1
+fi
+
+# The full path to the project directory
+PROJECT_PATH=$(realpath "$1")
+# The name of the project folder, used for the session name
+SESSION_NAME=$(basename "$PROJECT_PATH" | tr . _)
+
+# Check if a tmux session with this name already exists
+tmux has-session -t="$SESSION_NAME" 2>/dev/null
+
+# $? is a special variable that holds the exit code of the last command.
+# 0 means success (session exists), 1 means failure (session does not exist).
+if [ $? -eq 0 ]; then
+  # Session exists, so attach to it
+  echo "Attaching to existing session: $SESSION_NAME"
+  tmux attach-session -t "$SESSION_NAME"
+else
+  # Session does not exist, so create it
+  echo "Creating new session: $SESSION_NAME"
+
+  # Start a new, detached tmux session
+  # -d: detached
+  # -s: session name
+  # -c: starting directory
+  tmux new-session -d -s "$SESSION_NAME" -c "$PROJECT_PATH"
+
+  # --- Window 1: Code ---
+  # Rename the first window
+  tmux rename-window -t "$SESSION_NAME:0" "Code"
+  # Send the command 'nvim' to the first pane
+ # tmux send-keys -t "$SESSION_NAME:Code" "nvim" C-m
+
+  # Split the window vertically
+  tmux split-window -v -t "$SESSION_NAME:Code" -c "$PROJECT_PATH"
+  # Send a command to the new pane (e.g., a git client)
+  tmux send-keys -t "$SESSION_NAME:Code.1" "lazygit" C-m
+
+  # --- Window 2: Server ---
+  # Create a new window for the server
+  tmux new-window -t "$SESSION_NAME" -n "Server" -c "$PROJECT_PATH"
+  # Send the command to run the dev server
+  #tmux send-keys -t "$SESSION_NAME:Server" "npm run dev" C-m
+  tmux send-keys -t "$SESSION_NAME:Server" "bun run dev" C-m
+
+  # Attach to the newly created session
+  tmux attach-session -t "$SESSION_NAME"
+fi
