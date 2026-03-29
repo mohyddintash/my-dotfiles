@@ -27,5 +27,5 @@
 	enabled = true           # Record and reuse conflict resolutions
 	autoupdate = true        # Apply stored conflict resolutions automatically
 [user]
-	name = Mohyddin
+	name = Mohyddin Tash
 	email = mohyddin.tash@gmail.com
