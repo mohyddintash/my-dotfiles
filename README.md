@@ -102,6 +102,44 @@ Never run `omarchy-refresh-*` unless you intend to reset that config to omarchy
 defaults. If you accidentally do, your config is backed up with a timestamp suffix
 (e.g. `config.jsonc.bak.1234567890`) and also recoverable from this git repo.
 
+## After running omarchy update
+
+`omarchy update` may overwrite `hypridle.conf` and `hyprland.conf` via migrations.
+It creates a `.bak.<timestamp>` backup first, but you should verify your customisations survived:
+
+```bash
+git diff hyprland/.config/hypr/
+```
+
+In particular, check that `hypridle.conf` still has `OMARCHY_LOCK_ONLY=true` on the idle lock listener (see hardware notes below). If it's missing, reapply it before the next idle timeout.
+
+## Hardware notes — HP Pavilion x360
+
+### AMD GPU: never use dpms off
+
+`hyprctl dispatch dpms off` causes the display to go permanently black on this machine (AMD GPU ASPM resume bug). Recovery requires a forced reboot.
+
+The `hypridle.conf` idle lock listener uses `OMARCHY_LOCK_ONLY=true omarchy-system-lock` to skip the dpms-off step:
+
+```ini
+# hypridle.conf — keep OMARCHY_LOCK_ONLY=true, do NOT change to plain omarchy-system-lock
+on-timeout = OMARCHY_LOCK_ONLY=true omarchy-system-lock
+```
+
+This is the first thing to check if the screen goes black after idle and won't wake up.
+
+### Lid switch
+
+Logind defaults to `HandleLidSwitch=suspend`. A full suspend also triggers the AMD GPU resume bug. If the drop-in `/etc/systemd/logind.conf.d/90-lid.conf` is missing (e.g. after a reinstall), recreate it:
+
+```ini
+[Login]
+HandleLidSwitch=lock
+HandleLidSwitchExternalPower=lock
+```
+
+Then restart logind: `sudo systemctl restart systemd-logind`
+
 ## Branches
 
 | Branch | Contents |

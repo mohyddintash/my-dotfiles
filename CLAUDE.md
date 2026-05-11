@@ -65,6 +65,40 @@ stow -D -t ~ nvim-lazyvim && stow -t ~ nvim   # switch back
 - `master` — current active configs
 - `old-distro-backup` — previous distro (i3, polybar, wofi) kept for reference
 
+## Which hypr files omarchy migrations can overwrite
+
+`omarchy update` runs migrations that write directly through the stow symlinks into the dotfiles repo. These files **can be silently overwritten**:
+
+| File | Risk |
+|------|------|
+| `hyprland/.config/hypr/hypridle.conf` | Overwritten by migrations; omarchy creates a `.bak.<timestamp>` backup first |
+| `hyprland/.config/hypr/hyprland.conf` | Can be updated by migrations |
+
+After any `omarchy update`, always run `git diff hyprland/.config/hypr/` to check for unexpected changes and reapply customisations if needed.
+
+These files are **user-only** — omarchy never overwrites them:
+
+- `monitors.conf`, `bindings.conf`, `input.conf`, `envs.conf`, `looknfeel.conf`, `autostart.conf`
+- They are sourced by `hyprland.conf`; omarchy keeps its own defaults in `~/.local/share/omarchy/default/hypr/`
+
+## HP Pavilion x360 — known hardware issues
+
+### AMD GPU dpms hang (display goes black permanently)
+
+`hyprctl dispatch dpms off` causes a hard hang on wake on this machine due to an AMD GPU ASPM bug (`amdgpu: no suspend buffer for LTR`). The display goes black and cannot be recovered without a forced reboot.
+
+**Never** add `hyprctl dispatch dpms off` to hypridle listeners or any idle/lock scripts.
+
+The idle lock listener in `hypridle.conf` deliberately uses `OMARCHY_LOCK_ONLY=true`:
+```
+on-timeout = OMARCHY_LOCK_ONLY=true omarchy-system-lock
+```
+This flag prevents `omarchy-system-lock` from calling `omarchy-brightness-display off` (which would do `dpms off`). If omarchy update overwrites `hypridle.conf` and removes this flag, **reapply it before the next idle timeout or the display will hang**.
+
+### Lid switch
+
+This machine's logind default (`HandleLidSwitch=suspend`) triggers a full system suspend on lid close. Due to the same AMD GPU issue, the system may not resume. If suspend-on-lid is ever needed, create `/etc/systemd/logind.conf.d/90-lid.conf` with `HandleLidSwitch=lock` (lock only, no suspend).
+
 ## What NOT to edit
 
 - `~/.local/share/omarchy/` — omarchy source files, managed by omarchy-update
