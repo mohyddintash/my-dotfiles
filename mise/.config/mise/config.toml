@@ -1,5 +1,6 @@
 [tools]
 bun = "latest"
-node = "latest"
+node = "24.11.1"
+pipx = "latest"
 pnpm = "latest"
 python = "latest"

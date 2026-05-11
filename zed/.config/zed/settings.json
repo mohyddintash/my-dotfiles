@@ -23,5 +23,16 @@
     "mode": "dark",
     "light": "Gruvbox Light",
     "dark": "Gruvbox Dark"
+  },
+  "context_servers": {
+    "next-devtools": {
+      "source": "custom",
+      "command": "npx",
+      "args": [
+        "-y",
+        "next-devtools-mcp@latest"
+      ],
+      "env": {}
+    }
   }
 }
