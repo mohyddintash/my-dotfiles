@@ -117,16 +117,22 @@ In particular, check that `hypridle.conf` still has `OMARCHY_LOCK_ONLY=true` on 
 
 ### AMD GPU: never use dpms off
 
-`hyprctl dispatch dpms off` causes the display to go permanently black on this machine (AMD GPU ASPM resume bug). Recovery requires a forced reboot.
+`hyprctl dispatch dpms off` causes the display to go permanently black on this machine. Recovery requires a forced reboot.
 
-The `hypridle.conf` idle lock listener uses `OMARCHY_LOCK_ONLY=true omarchy-system-lock` to skip the dpms-off step:
+**Why:** HP BIOS firmware bug — the BIOS never allocates an LTR suspend buffer for the AMD GPU. You will always see this in the boot log:
+```
+amdgpu: no suspend buffer for LTR; ASPM issues possible after resume
+```
+This cannot be fixed by any kernel parameter. `amdgpu.aspm=0` is set in `/etc/default/limine` but does not eliminate the underlying BIOS bug — it is kept as extra protection only.
+
+**The fix** is to never call `dpms off`. The `hypridle.conf` idle lock listener must keep `OMARCHY_LOCK_ONLY=true`:
 
 ```ini
 # hypridle.conf — keep OMARCHY_LOCK_ONLY=true, do NOT change to plain omarchy-system-lock
 on-timeout = OMARCHY_LOCK_ONLY=true omarchy-system-lock
 ```
 
-This is the first thing to check if the screen goes black after idle and won't wake up.
+This is the first thing to check if the screen goes black after idle and won't wake up. Check it after every `omarchy update`.
 
 ### Lid switch
 

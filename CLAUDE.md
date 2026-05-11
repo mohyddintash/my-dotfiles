@@ -85,19 +85,31 @@ These files are **user-only** — omarchy never overwrites them:
 
 ### AMD GPU dpms hang (display goes black permanently)
 
-`hyprctl dispatch dpms off` causes a hard hang on wake on this machine due to an AMD GPU ASPM bug (`amdgpu: no suspend buffer for LTR`). The display goes black and cannot be recovered without a forced reboot.
+`hyprctl dispatch dpms off` causes a hard hang on wake on this machine. The display goes black and cannot be recovered without a forced reboot.
 
-**Never** add `hyprctl dispatch dpms off` to hypridle listeners or any idle/lock scripts.
+**Root cause:** HP BIOS firmware bug — the BIOS (`FADT`) never allocates an LTR suspend buffer for the AMD GPU. This produces the warning at every boot:
+```
+amdgpu 0000:01:00.0: no suspend buffer for LTR; ASPM issues possible after resume
+```
+This warning **cannot be eliminated** — it is a hardware/firmware bug unfixable by kernel parameters. `amdgpu.aspm=0` is present in the kernel cmdline (via `/etc/default/limine`) but does not silence this warning because the BIOS already declares ASPM unsupported at the hardware level (`FADT indicates ASPM is unsupported`). The parameter is kept as a belt-and-suspenders measure but is not the real fix.
 
-The idle lock listener in `hypridle.conf` deliberately uses `OMARCHY_LOCK_ONLY=true`:
+**The real fix** is to never call `dpms off` at all. The idle lock listener in `hypridle.conf` deliberately uses `OMARCHY_LOCK_ONLY=true`:
 ```
 on-timeout = OMARCHY_LOCK_ONLY=true omarchy-system-lock
 ```
-This flag prevents `omarchy-system-lock` from calling `omarchy-brightness-display off` (which would do `dpms off`). If omarchy update overwrites `hypridle.conf` and removes this flag, **reapply it before the next idle timeout or the display will hang**.
+This flag prevents `omarchy-system-lock` from calling `omarchy-brightness-display off` (which would trigger `dpms off`). If omarchy update overwrites `hypridle.conf` and removes this flag, **reapply it before the next idle timeout or the display will hang**.
+
+**Never** add `hyprctl dispatch dpms off` to hypridle listeners or any idle/lock scripts on this machine.
 
 ### Lid switch
 
-This machine's logind default (`HandleLidSwitch=suspend`) triggers a full system suspend on lid close. Due to the same AMD GPU issue, the system may not resume. If suspend-on-lid is ever needed, create `/etc/systemd/logind.conf.d/90-lid.conf` with `HandleLidSwitch=lock` (lock only, no suspend).
+This machine's logind default (`HandleLidSwitch=suspend`) triggers a full system suspend on lid close. Due to the same AMD GPU / HP BIOS issue, the system may not resume. If the lid is closed accidentally and the system hangs, create `/etc/systemd/logind.conf.d/90-lid.conf` to prevent future occurrences:
+```ini
+[Login]
+HandleLidSwitch=lock
+HandleLidSwitchExternalPower=lock
+```
+Then run `sudo systemctl restart systemd-logind`.
 
 ## What NOT to edit
 
