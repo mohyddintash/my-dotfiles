@@ -93,11 +93,13 @@ amdgpu 0000:01:00.0: no suspend buffer for LTR; ASPM issues possible after resum
 ```
 This warning **cannot be eliminated** — it is a hardware/firmware bug unfixable by kernel parameters. `amdgpu.aspm=0` is present in the kernel cmdline (via `/etc/default/limine`) but does not silence this warning because the BIOS already declares ASPM unsupported at the hardware level (`FADT indicates ASPM is unsupported`). The parameter is kept as a belt-and-suspenders measure but is not the real fix.
 
-**The real fix** is to never call `dpms off` at all. The idle lock listener in `hypridle.conf` deliberately uses `OMARCHY_LOCK_ONLY=true`:
-```
-on-timeout = OMARCHY_LOCK_ONLY=true omarchy-system-lock
-```
-This flag prevents `omarchy-system-lock` from calling `omarchy-brightness-display off` (which would trigger `dpms off`). If omarchy update overwrites `hypridle.conf` and removes this flag, **reapply it before the next idle timeout or the display will hang**.
+**The real fix** is to never call `dpms off` at all. Two layers of protection are in place:
+
+1. **`environment/.config/environment.d/hp-amdgpu-workaround.env`** sets `OMARCHY_LOCK_ONLY=true` for the entire user session via systemd. This is the primary guard — it survives omarchy updates completely because omarchy never touches `environment.d`. Takes effect on next login.
+
+2. **`hypridle.conf`** idle lock listener uses `OMARCHY_LOCK_ONLY=true omarchy-system-lock` explicitly as a secondary/documentation layer.
+
+`OMARCHY_LOCK_ONLY=true` prevents `omarchy-system-lock` from calling `omarchy-brightness-display off` (which would trigger `dpms off`). Even if omarchy update overwrites `hypridle.conf` and removes the explicit flag, the env var from `environment.d` still protects the session.
 
 **Never** add `hyprctl dispatch dpms off` to hypridle listeners or any idle/lock scripts on this machine.
 
