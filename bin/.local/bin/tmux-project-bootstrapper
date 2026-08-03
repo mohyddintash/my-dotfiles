@@ -12,23 +12,69 @@ PROJECT_PATH=$(realpath "$1")
 # tmux forbids '.' and ':' in session names, so swap both for '_'.
 SESSION_NAME=$(basename "$PROJECT_PATH" | tr '.:' '__')
 
-# Detect a dev-server command from the project's lockfile/manifest.
+# Detect a dev-server command from a directory's lockfile/manifest.
 # mise (activated in .bashrc) already switches tool versions per-directory,
 # so this only needs to pick *which* command to run, not which version.
-detect_dev_command() {
-  if [ -f "$PROJECT_PATH/bun.lockb" ] || [ -f "$PROJECT_PATH/bun.lock" ]; then
+detect_pm_dev_command() {
+  local dir="$1"
+  if [ -f "$dir/bun.lockb" ] || [ -f "$dir/bun.lock" ]; then
     echo "bun run dev"
-  elif [ -f "$PROJECT_PATH/pnpm-lock.yaml" ]; then
+  elif [ -f "$dir/pnpm-lock.yaml" ]; then
     echo "pnpm run dev"
-  elif [ -f "$PROJECT_PATH/yarn.lock" ]; then
+  elif [ -f "$dir/yarn.lock" ]; then
     echo "yarn dev"
-  elif [ -f "$PROJECT_PATH/package-lock.json" ]; then
+  elif [ -f "$dir/package-lock.json" ]; then
     echo "npm run dev"
-  elif [ -f "$PROJECT_PATH/package.json" ] && grep -q '"dev"' "$PROJECT_PATH/package.json"; then
+  elif [ -f "$dir/package.json" ] && grep -q '"dev"' "$dir/package.json"; then
     echo "npm run dev"
-  elif [ -f "$PROJECT_PATH/Cargo.toml" ]; then
-    echo "cargo run"
   fi
+}
+
+detect_dev_command() {
+  if [ -f "$PROJECT_PATH/Cargo.toml" ]; then
+    echo "cargo run"
+    return
+  fi
+  detect_pm_dev_command "$PROJECT_PATH"
+}
+
+# Docker compose file at the project root, if any.
+detect_compose_file() {
+  local f
+  for f in compose.yml compose.yaml docker-compose.yml docker-compose.yaml; do
+    if [ -f "$PROJECT_PATH/$f" ]; then
+      echo "$f"
+      return
+    fi
+  done
+}
+
+# pnpm-workspace.yaml member directories (besides '.') that have their own
+# "dev" script. Only handles a plain list under `packages:` — doesn't expand
+# globs like 'apps/*', which is fine for the monorepos this targets so far.
+workspace_dev_members() {
+  local workspace_file="$PROJECT_PATH/pnpm-workspace.yaml"
+  [ -f "$workspace_file" ] || return
+  awk '
+    /^packages:/ { in_packages=1; next }
+    in_packages && /^[^[:space:]-]/ { in_packages=0 }
+    in_packages && /^[[:space:]]*-/ {
+      line=$0
+      sub(/^[[:space:]]*-[[:space:]]*/, "", line)
+      gsub(/["'"'"']/, "", line)
+      print line
+    }
+  ' "$workspace_file" | while read -r member; do
+    [ "$member" = "." ] && continue
+    [ -f "$PROJECT_PATH/$member/package.json" ] || continue
+    grep -q '"dev"' "$PROJECT_PATH/$member/package.json" && echo "$member"
+  done
+}
+
+new_window() {
+  local name="$1" cmd="$2" dir="${3:-$PROJECT_PATH}"
+  tmux new-window -t "$SESSION_NAME" -n "$name" -c "$dir"
+  tmux send-keys -t "$SESSION_NAME:$name" "$cmd" C-m
 }
 
 if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
@@ -57,12 +103,26 @@ else
   # Send a command to the new pane (e.g., a git client)
   tmux send-keys -t "$SESSION_NAME:Code.1" "lazygit" C-m
 
-  # --- Window 2: Server (only if we recognize a dev command) ---
+  # --- Window 2: Dev (root dev-server command, if recognized) ---
   DEV_COMMAND=$(detect_dev_command)
   if [ -n "$DEV_COMMAND" ]; then
-    tmux new-window -t "$SESSION_NAME" -n "Server" -c "$PROJECT_PATH"
-    tmux send-keys -t "$SESSION_NAME:Server" "$DEV_COMMAND" C-m
+    new_window "Dev" "$DEV_COMMAND"
   fi
+
+  # --- Window 3: DB (docker compose, if a compose file exists) ---
+  COMPOSE_FILE=$(detect_compose_file)
+  if [ -n "$COMPOSE_FILE" ]; then
+    new_window "DB" "docker compose up"
+  fi
+
+  # --- Window 4+: one per pnpm workspace member with its own dev script ---
+  while read -r member; do
+    [ -n "$member" ] || continue
+    MEMBER_CMD=$(detect_pm_dev_command "$PROJECT_PATH/$member")
+    [ -n "$MEMBER_CMD" ] || continue
+    MEMBER_NAME=$(basename "$member")
+    new_window "${MEMBER_NAME^}" "$MEMBER_CMD" "$PROJECT_PATH/$member"
+  done < <(workspace_dev_members)
 
   # Attach to the newly created session
   tmux attach-session -t "$SESSION_NAME"
