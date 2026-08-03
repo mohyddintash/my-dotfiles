@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Launches the daily dev layout into fixed workspaces.
+# Workspaces 1-6 live on the ultrawide, 7-0 live on the laptop
+# (see ~/.config/hypr/monitors.conf). To add/remove an app, just
+# edit the APPS array below: "workspace|command".
+APPS=(
+  "2|uwsm-app -- alacritty --working-directory $HOME/dev"
+  "2|uwsm-app -- alacritty --working-directory $HOME/dev"
+  "2|uwsm-app -- alacritty --working-directory $HOME/dev"
+  "3|uwsm-app -- firefox"
+  "4|uwsm-app -- zen-browser"
+  "7|uwsm-app -- typora"
+)
+
+for entry in "${APPS[@]}"; do
+  ws="${entry%%|*}"
+  cmd="${entry#*|}"
+  hyprctl dispatch exec "[workspace $ws silent] $cmd"
+  sleep 0.3
+done

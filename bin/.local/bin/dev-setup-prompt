@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# omarchy:summary=Prompt for confirmation before launching the dev setup
+
+gum style --border normal --padding "1 2" \
+  "Launch dev setup?" \
+  "" \
+  "• 3 terminals in ~/dev (workspace 2, ultrawide)" \
+  "• Firefox (workspace 3, ultrawide)" \
+  "• Zen Browser (workspace 4, ultrawide)" \
+  "• Typora (workspace 7, laptop)"
+
+echo
+
+if gum confirm "Launch now?"; then
+  dev-setup
+else
+  echo "Skipped — staying on a clean desktop"
+fi

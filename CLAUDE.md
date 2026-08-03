@@ -50,6 +50,7 @@ Always use `omarchy-restart-*` to apply config changes. Never use
 | `nvim-lazyvim` | `~/.config/nvim/` | Inactive — stow swap to use |
 | `nvim-nvchad` | `~/.config/nvim/` | Inactive — stow swap to use |
 | `starship` | `~/.config/starship.toml` | Single file, not a directory |
+| `bin` | `~/.local/bin/` | See `bin/.local/bin/AGENTS.md` for the `dev-setup` login-prompt scripts |
 | all others | `~/.config/<pkg>/` | |
 
 ## Switching nvim distros
