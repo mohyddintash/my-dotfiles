@@ -1,21 +1,81 @@
 #!/bin/bash
+set -euo pipefail
 
-# Launches the daily dev layout into fixed workspaces.
-# Workspaces 1-6 live on the ultrawide, 7-0 live on the laptop
-# (see ~/.config/hypr/monitors.conf). To add/remove an app, just
-# edit the APPS array below: "workspace|command".
-APPS=(
-  "2|uwsm-app -- alacritty --working-directory $HOME/dev"
-  "2|uwsm-app -- alacritty --working-directory $HOME/dev"
-  "2|uwsm-app -- alacritty --working-directory $HOME/dev"
-  "3|uwsm-app -- firefox"
-  "4|uwsm-app -- zen-browser"
-  "7|uwsm-app -- typora"
-)
+# Launches the daily dev layout into fixed workspaces, defined by a
+# "profile" YAML file under ~/.config/dev-setup/profiles/. See
+# bin/.local/bin/AGENTS.md for the schema and bin/.local/bin/README.md
+# for usage.
+#
+# DEV_SETUP_OVERRIDES may be set to a JSON object mapping an entry's `id`
+# to a one-off replacement command, e.g. '{"term-pixeleers":"npm run build",
+# "firefox":"uwsm-app -- google-chrome-stable --restore-last-session"}' —
+# set by dev-setup-prompt's Customize flow. For a terminal entry this
+# replaces `run`; for a plain-cmd entry it replaces `cmd` outright. Overrides
+# are never written back to the config file.
 
-for entry in "${APPS[@]}"; do
-  ws="${entry%%|*}"
-  cmd="${entry#*|}"
+# Which profile to use, in priority order: an explicit profile name as
+# $1 (e.g. `dev-setup work`), an explicit path via DEV_SETUP_CONFIG (used
+# by the test shim workflow in AGENTS.md), or the "default" profile.
+if [[ $# -ge 1 ]]; then
+  CONFIG="$HOME/.config/dev-setup/profiles/$1.yml"
+else
+  CONFIG="${DEV_SETUP_CONFIG:-$HOME/.config/dev-setup/profiles/default.yml}"
+fi
+
+if [[ ! -f $CONFIG ]]; then
+  echo "dev-setup: no such profile: $CONFIG" >&2
+  exit 1
+fi
+
+# Default to an empty-object override map. Written as two lines, not
+# ${DEV_SETUP_OVERRIDES:-{}}, because bash misparses a literal {} inside
+# a ${VAR:-default} expansion (it leaks a stray trailing '}' when the var
+# IS set) — a real bug, not style.
+OVERRIDES="${DEV_SETUP_OVERRIDES:-}"
+[[ -z $OVERRIDES ]] && OVERRIDES='{}'
+
+# The terminal emulator command used for every `terminal: true` entry;
+# falls back to alacritty if the config doesn't set one.
+terminal_cmd=$(yq -r '.terminal // "uwsm-app -- alacritty"' "$CONFIG")
+
+# yq converts the YAML to JSON and pipes it through jq -c, so each line of
+# this loop is one compact single-line JSON object (one `apps[]` entry).
+while IFS= read -r entry; do
+  id=$(jq -r '.id' <<<"$entry")
+  ws=$(jq -r '.workspace' <<<"$entry")
+
+  if [[ $(jq -r '.terminal // false' <<<"$entry") == "true" ]]; then
+    # Terminal-type entry: needs a working directory, and optionally a
+    # command to run on start.
+    cwd=$(jq -r '.cwd' <<<"$entry")
+    cwd="${cwd/#\~/$HOME}"   # expand a leading ~ ourselves; YAML/jq won't
+    run=$(jq -r '.run // empty' <<<"$entry")
+
+    # A per-id override from dev-setup-prompt's Customize flow replaces
+    # the config's `run` for this launch only.
+    override=$(jq -r --arg id "$id" '.[$id] // empty' <<<"$OVERRIDES")
+    [[ -n $override ]] && run="$override"
+
+    if [[ -n $run ]]; then
+      # -ic runs the command interactively then `exec bash` hands control
+      # to an interactive shell, so the terminal stays open and usable
+      # after the startup command finishes (e.g. a dev server, or a quick
+      # one-off like `htop`).
+      cmd="$terminal_cmd --working-directory $cwd -e bash -ic \"$run; exec bash\""
+    else
+      cmd="$terminal_cmd --working-directory $cwd"
+    fi
+  else
+    # Non-terminal entry (browser, editor, etc.): cmd is the full launch
+    # command as-is, unless overridden wholesale (e.g. swap Firefox for
+    # Chrome with different flags, for this launch only).
+    cmd=$(jq -r '.cmd' <<<"$entry")
+    override=$(jq -r --arg id "$id" '.[$id] // empty' <<<"$OVERRIDES")
+    [[ -n $override ]] && cmd="$override"
+  fi
+
+  # [workspace N silent] launches straight into that workspace without
+  # stealing focus — no window-class match rules needed.
   hyprctl dispatch exec "[workspace $ws silent] $cmd"
   sleep 0.3
-done
+done < <(yq -c '.apps[]' "$CONFIG")

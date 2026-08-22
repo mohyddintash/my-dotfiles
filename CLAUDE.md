@@ -51,6 +51,7 @@ Always use `omarchy-restart-*` to apply config changes. Never use
 | `nvim-nvchad` | `~/.config/nvim/` | Inactive — stow swap to use |
 | `starship` | `~/.config/starship.toml` | Single file, not a directory |
 | `bin` | `~/.local/bin/` | See `bin/.local/bin/AGENTS.md` for the `dev-setup` login-prompt scripts |
+| `dev-setup` | `~/.config/dev-setup/` | `profiles/*.yml` — the app-list profiles the `dev-setup`/`dev-setup-prompt` scripts (in `bin`) read; see `bin/.local/bin/AGENTS.md` |
 | all others | `~/.config/<pkg>/` | |
 
 ## Switching nvim distros

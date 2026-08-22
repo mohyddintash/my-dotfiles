@@ -1,0 +1,41 @@
+# dev-setup profile — each entry launches one app into a Hyprland workspace.
+# Workspace numbers follow hyprland/.config/hypr/monitors.conf pinning
+# (1-6 = ultrawide, 7-0 = laptop). See bin/.local/bin/AGENTS.md for the
+# full schema reference and how the login popup / profile / override
+# mechanisms use this.
+#
+# To add another profile (e.g. work, personal, browsing): copy
+# TEMPLATE.yml.example (not this file) to a sibling in profiles/ and edit
+# its apps — no script changes needed, dev-setup-prompt picks up new
+# profile files automatically.
+
+terminal: "uwsm-app -- alacritty"   # default terminal emulator launch command
+
+apps:
+  - id: term-dev
+    workspace: 2
+    terminal: true
+    cwd: ~/dev
+
+  - id: term-pixeleers
+    workspace: 2
+    terminal: true
+    cwd: /home/mo/dev/astro-themes/pixeleers
+    run: tmux-project-bootstrapper /home/mo/dev/astro-themes/pixeleers
+
+  - id: term-scratch
+    workspace: 2
+    terminal: true
+    cwd: ~/dev
+
+  - id: firefox
+    workspace: 3
+    cmd: "uwsm-app -- firefox"
+
+  - id: zen
+    workspace: 4
+    cmd: "uwsm-app -- zen-browser"
+
+  - id: typora
+    workspace: 7
+    cmd: "uwsm-app -- typora"

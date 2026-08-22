@@ -1,0 +1,48 @@
+# TEMPLATE for a dev-setup profile.
+#
+# This file is intentionally named *.yml.example, NOT *.yml — dev-setup and
+# dev-setup-prompt only glob *.yml under profiles/, so this file is never
+# picked up as a real, selectable profile. To use it: copy it to a *.yml
+# file and edit the placeholder values (marked below) before relying on it.
+#
+#   cp TEMPLATE.yml.example work.yml
+#
+# Workspace numbers must follow hyprland/.config/hypr/monitors.conf's
+# pinning (check with `hyprctl monitors` if unsure which is which):
+#   - ultrawide (HDMI-A-1): workspaces 1-6
+#   - laptop    (eDP-1):    workspaces 7-0
+
+# Default terminal emulator command for every `terminal: true` entry below.
+# NOTE: this is profile-wide — there's currently no way to give individual
+# entries a different terminal emulator within the same profile.
+terminal: "uwsm-app -- alacritty"
+
+apps:
+  # --- Terminal-type entry ---
+  # Opens `terminal:` above in `cwd`, optionally running `run` on start.
+  - id: my-terminal-entry        # REQUIRED, unique across this file — used
+                                  # to target this entry from the Customize
+                                  # override picker.
+    workspace: 2                 # REQUIRED — see the monitor pinning note above.
+    terminal: true                # marks this as a terminal-type entry.
+    cwd: /path/to/your/project   # PLACEHOLDER — replace with a real,
+                                  # existing directory. `~` is expanded.
+    run: npm run dev              # OPTIONAL — omit entirely for a plain shell.
+                                  # Any valid shell command works, including
+                                  # chained ones:
+                                  #   run: cd subdir && npm install && npm run dev
+                                  #   run: npm run lint && npm run build
+                                  # It's executed as `bash -ic "$run; exec bash"`,
+                                  # so the terminal drops into an interactive
+                                  # shell afterward instead of closing.
+
+  # --- Plain-cmd entry ---
+  # Anything that isn't a terminal: a browser, an editor, any GUI app.
+  # `cmd` is the literal, full launch command, used as-is.
+  - id: my-app-entry             # REQUIRED, unique.
+    workspace: 3                 # REQUIRED.
+    cmd: "uwsm-app -- firefox"   # REQUIRED for this entry type — no `cwd`/`run`.
+                                  # Chrome/Chromium example, since it has a real
+                                  # CLI flag for this (Firefox does not — that's
+                                  # a persistent setting, not a launch flag):
+                                  #   cmd: "uwsm-app -- google-chrome-stable --restore-last-session"

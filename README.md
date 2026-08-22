@@ -32,7 +32,9 @@ Each package is a directory that mirrors `$HOME`. Stow creates symlinks from
 ├── imv/            → ~/.config/imv/
 ├── makima/         → ~/.config/makima/
 ├── swayosd/        → ~/.config/swayosd/
-└── starship/       → ~/.config/starship.toml
+├── starship/       → ~/.config/starship.toml
+├── bin/            → ~/.local/bin/         (tm-sessionizer, dev-setup, ...)
+└── dev-setup/      → ~/.config/dev-setup/  (dev-setup's profiles/*.yml)
 ```
 
 ## Install on a new machine
@@ -48,7 +50,7 @@ git clone git@github.com:mohyddintash/my-dotfiles.git ~/dotfiles
 cd ~/dotfiles
 stow -t ~ hyprland waybar nvim ghostty kitty alacritty git fish tmux zed \
          mako walker btop fastfetch lazygit lazydocker mise imv makima \
-         swayosd starship
+         swayosd starship bin dev-setup
 ```
 
 ## Switching nvim distros
@@ -115,13 +117,16 @@ In particular, check that `hypridle.conf` still has `OMARCHY_LOCK_ONLY=true` on 
 
 ## Dev setup auto-launch
 
-At login, a floating popup asks whether to launch the daily app layout (3
-terminals, Firefox, Zen Browser, Typora) into fixed workspaces pinned to each
-monitor. Triggered by `exec-once` in `hyprland/.config/hypr/autostart.conf`,
+At login, a floating popup lets you pick a **profile** (a named app layout —
+e.g. work, personal) and launch it into fixed workspaces pinned to each
+monitor, or customize select terminals' startup commands for that login
+only. Triggered by `exec-once` in `hyprland/.config/hypr/autostart.conf`,
 implemented in `bin/.local/bin/dev-setup` and `dev-setup-prompt`, workspace
-pinning lives in `hyprland/.config/hypr/monitors.conf`.
+pinning lives in `hyprland/.config/hypr/monitors.conf`. Profiles are data,
+not code — YAML files under `dev-setup/.config/dev-setup/profiles/`; ships
+with one (`default.yml`), add more by copying it.
 
-Full details, dependencies, and how to extend the app list:
+Full details, config schema, and how the profile/Customize flow works:
 `bin/.local/bin/README.md` (user-facing) and `bin/.local/bin/AGENTS.md`
 (maintenance notes).
 

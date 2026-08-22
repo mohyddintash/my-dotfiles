@@ -1,19 +1,106 @@
 #!/bin/bash
+set -euo pipefail
 
 # omarchy:summary=Prompt for confirmation before launching the dev setup
 
+PROFILES_DIR="$HOME/.config/dev-setup/profiles"
+
+# Every *.yml in profiles/ is a selectable profile. With just one (the
+# common case), skip the picker entirely — it appears on its own the
+# moment a second profile file exists, no script change needed.
+profiles=()
+for f in "$PROFILES_DIR"/*.yml; do
+  profiles+=("$(basename "$f" .yml)")
+done
+
+if [[ ${#profiles[@]} -eq 1 ]]; then
+  profile="${profiles[0]}"
+else
+  profile=$(gum choose "${profiles[@]}" --header "Which dev-setup profile?")
+fi
+CONFIG="$PROFILES_DIR/$profile.yml"
+
+# Build the popup summary straight from the config, so it can never drift
+# out of sync with what dev-setup will actually launch (the old version
+# had this as hand-maintained static text).
+summary=()
+while IFS= read -r entry; do
+  ws=$(jq -r '.workspace' <<<"$entry")
+  if [[ $(jq -r '.terminal // false' <<<"$entry") == "true" ]]; then
+    cwd=$(jq -r '.cwd' <<<"$entry")
+    run=$(jq -r '.run // empty' <<<"$entry")
+    desc="terminal in $cwd"
+    [[ -n $run ]] && desc+=" → $run"
+  else
+    desc=$(jq -r '.cmd' <<<"$entry")
+  fi
+  summary+=("• workspace $ws: $desc")
+done < <(yq -c '.apps[]' "$CONFIG")
+
 gum style --border normal --padding "1 2" \
-  "Launch dev setup?" \
+  "Launch dev setup? (profile: $profile)" \
   "" \
-  "• 3 terminals in ~/dev (workspace 2, ultrawide)" \
-  "• Firefox (workspace 3, ultrawide)" \
-  "• Zen Browser (workspace 4, ultrawide)" \
-  "• Typora (workspace 7, laptop)"
+  "${summary[@]}"
 
 echo
 
-if gum confirm "Launch now?"; then
-  dev-setup
-else
+choice=$(gum choose "Launch now" "Customize" "Skip")
+
+case "$choice" in
+"Launch now")
+  DEV_SETUP_CONFIG="$CONFIG" dev-setup
+  ;;
+"Customize")
+  # Step 1: checkbox-pick which entries to override this launch only —
+  # any entry in any workspace, not just terminals. Options are built as
+  # "label<TAB>id" pairs; --label-delimiter makes gum choose display the
+  # label but return just the id for whatever got selected.
+  options=()
+  while IFS= read -r entry; do
+    id=$(jq -r '.id' <<<"$entry")
+    ws=$(jq -r '.workspace' <<<"$entry")
+    if [[ $(jq -r '.terminal // false' <<<"$entry") == "true" ]]; then
+      cwd=$(jq -r '.cwd' <<<"$entry")
+      run=$(jq -r '.run // "none"' <<<"$entry")
+      label="WS$ws · $id ($cwd) — currently: $run"
+    else
+      cmd=$(jq -r '.cmd' <<<"$entry")
+      label="WS$ws · $id — currently: $cmd"
+    fi
+    options+=("$label"$'\t'"$id")
+  done < <(yq -c '.apps[]' "$CONFIG")
+
+  selected=$(printf '%s\n' "${options[@]}" | gum choose --no-limit \
+    --label-delimiter=$'\t' \
+    --header "Space to select entries to override, enter to confirm (none = launch as-is)")
+
+  # Step 2: only the selected entries get prompted for a replacement —
+  # everything else uses the profile's config untouched. Terminal entries
+  # override just the `run` command (blank is meaningful: plain shell, no
+  # command). Plain-cmd entries override the whole launch command (blank
+  # here means "changed my mind" — declined, not "launch nothing").
+  overrides="{}"
+  if [[ -n $selected ]]; then
+    while IFS= read -r entry; do
+      id=$(jq -r '.id' <<<"$entry")
+      grep -qxF "$id" <<<"$selected" || continue
+      if [[ $(jq -r '.terminal // false' <<<"$entry") == "true" ]]; then
+        cwd=$(jq -r '.cwd' <<<"$entry")
+        default_run=$(jq -r '.run // empty' <<<"$entry")
+        answer=$(gum input --placeholder "command for $id ($cwd), blank = none" --value "$default_run")
+        overrides=$(jq --arg k "$id" --arg v "$answer" '. + {($k): $v}' <<<"$overrides")
+      else
+        default_cmd=$(jq -r '.cmd' <<<"$entry")
+        answer=$(gum input --placeholder "full launch command for $id, blank = keep default" --value "$default_cmd")
+        [[ -n $answer ]] && overrides=$(jq --arg k "$id" --arg v "$answer" '. + {($k): $v}' <<<"$overrides")
+      fi
+    done < <(yq -c '.apps[]' "$CONFIG")
+  fi
+
+  DEV_SETUP_CONFIG="$CONFIG" DEV_SETUP_OVERRIDES="$overrides" dev-setup
+  ;;
+*)
+  # Covers "Skip" and gum choose returning empty (e.g. Esc pressed).
   echo "Skipped — staying on a clean desktop"
-fi
+  ;;
+esac
