@@ -113,6 +113,18 @@ git diff hyprland/.config/hypr/
 
 In particular, check that `hypridle.conf` still has `OMARCHY_LOCK_ONLY=true` on the idle lock listener (see hardware notes below). If it's missing, reapply it before the next idle timeout.
 
+## Dev setup auto-launch
+
+At login, a floating popup asks whether to launch the daily app layout (3
+terminals, Firefox, Zen Browser, Typora) into fixed workspaces pinned to each
+monitor. Triggered by `exec-once` in `hyprland/.config/hypr/autostart.conf`,
+implemented in `bin/.local/bin/dev-setup` and `dev-setup-prompt`, workspace
+pinning lives in `hyprland/.config/hypr/monitors.conf`.
+
+Full details, dependencies, and how to extend the app list:
+`bin/.local/bin/README.md` (user-facing) and `bin/.local/bin/AGENTS.md`
+(maintenance notes).
+
 ## Hardware notes — HP Pavilion x360
 
 ### AMD GPU: never use dpms off
