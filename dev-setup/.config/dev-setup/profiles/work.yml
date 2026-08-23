@@ -1,0 +1,58 @@
+# dev-setup profile — each entry launches one app into a Hyprland workspace.
+# Workspace numbers follow hyprland/.config/hypr/monitors.conf pinning
+# (1-6 = ultrawide, 7-0 = laptop). See bin/.local/bin/AGENTS.md for the
+# full schema reference and how the login popup / profile / override
+# mechanisms use this.
+
+terminal: "uwsm-app -- alacritty"   # default terminal emulator launch command
+
+apps:
+  # WS1: 3 plain terminals in scholar-site
+  - id: term-scholar-1
+    workspace: 1
+    terminal: true
+    cwd: /home/mo/dev/scholar-site
+
+  - id: term-scholar-2
+    workspace: 1
+    terminal: true
+    cwd: /home/mo/dev/scholar-site
+
+  - id: term-scholar-3
+    workspace: 1
+    terminal: true
+    cwd: /home/mo/dev/scholar-site
+
+  # WS2: 2 terminals in scholar-site, each running `claude`
+  - id: term-scholar-claude-1
+    workspace: 2
+    terminal: true
+    cwd: /home/mo/dev/scholar-site
+    run: claude
+
+  - id: term-scholar-claude-2
+    workspace: 2
+    terminal: true
+    cwd: /home/mo/dev/scholar-site
+    run: claude
+
+  - id: firefox
+    workspace: 3
+    cmd: "uwsm-app -- firefox"
+
+  - id: zen
+    workspace: 4
+    cmd: "uwsm-app -- zen-browser"
+
+  # WS5: 2 terminals, one per project, each running `claude`
+  - id: term-coach-claude
+    workspace: 5
+    terminal: true
+    cwd: /home/mo/personal-coach-modarrib
+    run: claude
+
+  - id: term-marriage-claude
+    workspace: 5
+    terminal: true
+    cwd: /home/mo/marraige-councelor-saas
+    run: claude
