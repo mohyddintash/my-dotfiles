@@ -45,21 +45,28 @@ cd ~/dotfiles
 ./bootstrap.sh
 ```
 
-`bootstrap.sh` installs `packages/pacman.txt` + `packages/aur.txt` via `yay`,
-installs zed (curl installer — it's not a pacman/AUR package here), stows
-every package below, applies pinned runtime versions via `mise install`, and
-applies this machine's HP Pavilion x360 quirks (skipped automatically on
-other hardware). Safe to re-run.
+`bootstrap.sh` is a one-line wrapper around `install/install-all.sh`, which
+runs every `install/install-<name>.sh` in order — one script per
+package/step (`set -e`, so it stops dead at whichever one fails, and
+everything before it already succeeded). Run the whole thing, or run any
+single `install/install-<x>.sh` on its own. Safe to re-run.
 
-Regenerate the package snapshots after installing something new:
-```bash
-pacman -Qqe > packages/pacman.txt
-pacman -Qqm > packages/aur.txt
-```
+The package scripts cover the real delta beyond what Omarchy already
+installs by default — diffed against Omarchy's own
+`~/.local/share/omarchy/install/omarchy-{base,other}.packages` manifests, so
+this repo isn't duplicating packages the Omarchy installer already gives you
+for free. Add a new one the same way: `install/install-<name>.sh` with
+`yay -S --needed --noconfirm <name>`, then add a `run install-<name>.sh`
+line to `install/install-all.sh`. Related packages that are only ever
+installed/removed together get one script (`install-elephant.sh` for
+walker's 13-package provider suite, `install-bluez.sh` for
+`bluez`+`bluez-utils`, `install-bitwarden.sh` for the app + its CLI).
 
 Note: `kitty` and `fish` are stowed by default but may not be the terminal/shell
 actually in use on a given machine — they're optional alternates, same idea
-as the three nvim configs below.
+as the three nvim configs below (their packages aren't in `install/` for
+that reason; stow their config, install the package only if you switch to
+using them).
 
 <details>
 <summary>Manual steps (what bootstrap.sh does, if you want to run them by hand)</summary>
