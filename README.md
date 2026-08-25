@@ -40,18 +40,38 @@ Each package is a directory that mirrors `$HOME`. Stow creates symlinks from
 ## Install on a new machine
 
 ```bash
-# 1. Install stow
-sudo pacman -S stow
-
-# 2. Clone
 git clone git@github.com:mohyddintash/my-dotfiles.git ~/dotfiles
+cd ~/dotfiles
+./bootstrap.sh
+```
 
-# 3. Stow all packages at once
+`bootstrap.sh` installs `packages/pacman.txt` + `packages/aur.txt` via `yay`,
+installs zed (curl installer — it's not a pacman/AUR package here), stows
+every package below, applies pinned runtime versions via `mise install`, and
+applies this machine's HP Pavilion x360 quirks (skipped automatically on
+other hardware). Safe to re-run.
+
+Regenerate the package snapshots after installing something new:
+```bash
+pacman -Qqe > packages/pacman.txt
+pacman -Qqm > packages/aur.txt
+```
+
+Note: `kitty` and `fish` are stowed by default but may not be the terminal/shell
+actually in use on a given machine — they're optional alternates, same idea
+as the three nvim configs below.
+
+<details>
+<summary>Manual steps (what bootstrap.sh does, if you want to run them by hand)</summary>
+
+```bash
+sudo pacman -S stow
 cd ~/dotfiles
 stow -t ~ hyprland waybar nvim ghostty kitty alacritty git fish tmux zed \
          mako walker btop fastfetch lazygit lazydocker mise imv makima \
          swayosd starship bin dev-setup
 ```
+</details>
 
 ## Switching nvim distros
 

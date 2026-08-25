@@ -1,0 +1,6 @@
+antigravity
+beekeeper-studio-bin
+local-by-flywheel-bin
+ncurses5-compat-libs
+stripe-cli-bin
+zen-browser-bin
