@@ -5,9 +5,7 @@ profile {
     identity = true
 }
 
-# To enable auto switch to nightlight, add to your .config/hypr/autostart.lua:
-# o.launch_on_start("hyprsunset")
-# and use the following:
+# Enable auto switch to nightlight:
 # profile {
 #     time = 20:00
 #     temperature = 4000
