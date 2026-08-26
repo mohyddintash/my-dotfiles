@@ -11,7 +11,6 @@ Each package is a directory that mirrors `$HOME`. Stow creates symlinks from
 ```
 ~/dotfiles/
 ├── hyprland/       → ~/.config/hypr/
-├── waybar/         → ~/.config/waybar/
 ├── nvim/           → ~/.config/nvim/        (active nvim config)
 ├── nvim-lazyvim/   → ~/.config/nvim/        (switch to activate)
 ├── nvim-nvchad/    → ~/.config/nvim/        (switch to activate)
@@ -22,8 +21,6 @@ Each package is a directory that mirrors `$HOME`. Stow creates symlinks from
 ├── fish/           → ~/.config/fish/
 ├── tmux/           → ~/.config/tmux/
 ├── zed/            → ~/.config/zed/
-├── mako/           → ~/.config/mako/
-├── walker/         → ~/.config/walker/
 ├── btop/           → ~/.config/btop/
 ├── fastfetch/      → ~/.config/fastfetch/
 ├── lazygit/        → ~/.config/lazygit/
@@ -34,8 +31,16 @@ Each package is a directory that mirrors `$HOME`. Stow creates symlinks from
 ├── swayosd/        → ~/.config/swayosd/
 ├── starship/       → ~/.config/starship.toml
 ├── bin/            → ~/.local/bin/         (tm-sessionizer, dev-setup, ...)
-└── dev-setup/      → ~/.config/dev-setup/  (dev-setup's profiles/*.yml)
+├── dev-setup/      → ~/.config/dev-setup/  (dev-setup's profiles/*.yml)
+└── quickshell-plugins/mo.lock/  (NOT stowed — copied to ~/.config/omarchy/plugins/mo.lock
+                                   by install/install-quickshell-plugins.sh. Omarchy's plugin
+                                   validator rejects symlinks inside a plugin folder, so this
+                                   one can't be a stow package. See Hardware notes below.)
 ```
+
+Omarchy 4 (Quattro) dropped `waybar`, `walker`, and `mako` in favor of its own
+Quickshell shell (`omarchy-shell`) — see the `omarchy3-shell-backup` branch
+for their configs and install scripts, archived rather than deleted.
 
 ## Install on a new machine
 
@@ -74,9 +79,16 @@ using them).
 ```bash
 sudo pacman -S stow
 cd ~/dotfiles
-stow -t ~ hyprland waybar nvim ghostty kitty alacritty git fish tmux zed \
-         mako walker btop fastfetch lazygit lazydocker mise imv makima \
+stow -t ~ hyprland nvim ghostty kitty alacritty git fish tmux zed \
+         btop fastfetch lazygit lazydocker mise imv makima \
          swayosd starship bin dev-setup
+
+# quickshell-plugins/ is copied, not stowed (see Structure above):
+for plugin in quickshell-plugins/*/; do
+  name=$(basename "$plugin")
+  cp -r "$plugin" ~/.config/omarchy/plugins/"$name"
+done
+omarchy-shell shell rescanPlugins
 ```
 </details>
 
@@ -169,14 +181,58 @@ amdgpu: no suspend buffer for LTR; ASPM issues possible after resume
 ```
 This cannot be fixed by any kernel parameter. `amdgpu.aspm=0` is set in `/etc/default/limine` but does not eliminate the underlying BIOS bug — it is kept as extra protection only.
 
-**The fix** is to never call `dpms off`. The `hypridle.conf` idle lock listener must keep `OMARCHY_LOCK_ONLY=true`:
+**The fix** is to never call `dpms off`.
+
+**Omarchy 4 (Quattro) and later:** `hypridle` is gone — idle/lock/screensaver is
+now handled by the Quickshell `omarchy-shell`, specifically the `omarchy.lock`
+service plugin. Its stock `Service.qml` blanks the display 5 seconds after
+*any* lock (idle-triggered or manual) by shelling out to
+`omarchy-brightness-display off`, which dispatches `hl.dsp.dpms({ action =
+"disable" })` — no `shell.json` setting can turn this off, and the
+`OMARCHY_LOCK_ONLY` escape hatch from Omarchy 3 has no equivalent here. Fixed
+by cloning the plugin (the documented way to customize built-in shell
+behavior — see `omarchy plugin clone --help`) and dropping the dpms-off step.
+Source lives at `quickshell-plugins/mo.lock/` in this repo — **not stowed**:
+`omarchy plugin validate` explicitly rejects a plugin folder containing a
+symlink (`omarchy-plugin-validate: symlinks are not allowed inside a plugin
+folder`), and a stow-managed folder is exactly that. So
+`install/install-quickshell-plugins.sh` plain-copies it into
+`~/.config/omarchy/plugins/mo.lock/` instead — real files, no symlink, passes
+validation, matches how `omarchy plugin clone` itself lays a plugin down.
+Re-running that install script re-copies from the repo (safe/idempotent) and
+rescans, so editing the source and re-running is the update workflow.
+
+`Service.qml`'s `blankProcess` in that copy only runs
+`omarchy-brightness-keyboard off` (safe) — the `omarchy-brightness-display
+off` call is removed, with a comment explaining why. `omarchy plugin clone`
+switched the active lock service from `omarchy.lock` to `mo.lock`
+automatically; confirm it's still the active one after any `omarchy update`
+or `omarchy refresh shell`:
+
+```bash
+omarchy-shell shell listPlugins | grep -A2 '"lock"'
+# mo.lock should show enabled: true, omarchy.lock should show enabled: false
+```
+
+If an Omarchy update ever changes `omarchy.lock`'s `Service.qml` in a way
+that matters (new features, security fixes), diff it against this clone —
+`omarchy plugin clone` copies the file once, it does not track upstream
+changes.
+
+**Omarchy 3.x (pre-Quattro):** the fix lived in `hypridle.conf`, which had to
+keep `OMARCHY_LOCK_ONLY=true` on its idle lock listener:
 
 ```ini
 # hypridle.conf — keep OMARCHY_LOCK_ONLY=true, do NOT change to plain omarchy-system-lock
 on-timeout = OMARCHY_LOCK_ONLY=true omarchy-system-lock
 ```
 
-This is the first thing to check if the screen goes black after idle and won't wake up. Check it after every `omarchy update`.
+Kept here for reference only in case of a rollback — `hypridle` is not
+installed on Quattro and this file is no longer read.
+
+Whichever mechanism is live, this is the first thing to check if the screen
+goes black after idle/lock and won't wake up. Check it after every `omarchy
+update`.
 
 ### Lid switch
 
@@ -196,3 +252,4 @@ Then restart logind: `sudo systemctl restart systemd-logind`
 |--------|----------|
 | `master` | Current Omarchy setup — all active configs |
 | `old-distro-backup` | Previous distro configs (i3, polybar, wofi, etc.) preserved for reference |
+| `omarchy3-shell-backup` | Omarchy 3's native shell configs (`waybar`, `walker`, `mako`) and their install scripts, retired when Quattro replaced them with `omarchy-shell` (Quickshell) |
