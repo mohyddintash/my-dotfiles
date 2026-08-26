@@ -236,6 +236,30 @@ update`.
 
 ### AMD GPU, second trigger: screensaver racing the lock (Quattro)
 
+**In plain terms, for future-us:** think of the screensaver and the lock as
+two separate alarm clocks — one set for "start the screensaver" (2.5 min of
+no activity), one for "lock the screen" (5 min). In Omarchy 3 these really
+were two independent alarms; touching one didn't affect the other. Quattro
+rebuilt this as one shared alarm system instead of two, and that created an
+edge case: if you nudge the mouse *right* as the screensaver alarm goes off,
+the code doesn't fully cancel the countdown — it just says "keep waiting."
+So the lock alarm, which should have been reset by that nudge, keeps quietly
+ticking in the background. When it finally goes off 5 minutes later, the
+lock screen starts appearing — and at that exact same moment, the shared
+alarm system gets confused, thinks "we're idle again," and starts the
+screensaver a **second time**, from scratch. Now the lock screen is building
+itself on both monitors at the same time a fresh screensaver is trying to
+open windows on both monitors too — that pile-up of simultaneous screen
+activity is what this GPU's firmware bug couldn't survive, even though
+nothing explicitly told the screen to power off this time. Fix: turn the
+screensaver off entirely, so there's no second thing left to pile onto the
+lock. **This is why the screensaver is disabled on this machine** — if you
+ever wonder why and are tempted to turn it back on, this is why not to
+(until Omarchy fixes the underlying race — see the bug report drafts,
+`omarchy-bug-reports.md`, not yet filed as of this writing).
+
+The technical version, for whoever's debugging this later:
+
 The `mo.lock` fix above stops the *explicit* dpms-off call, but the machine
 hard-hung again after it was already deployed — a genuinely different
 trigger, confirmed from `journalctl -b -1`/`-2`/`-4`, not guessed:
