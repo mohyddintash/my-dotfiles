@@ -18,4 +18,12 @@ sudo systemctl restart systemd-logind
 grep -q "amdgpu.aspm=0" /etc/default/limine 2>/dev/null ||
   echo "Warning: add amdgpu.aspm=0 to /etc/default/limine's kernel cmdline manually, then 'sudo limine-update'" >&2
 
-echo "Also verify hypridle.conf keeps OMARCHY_LOCK_ONLY=true — never call 'hyprctl dispatch dpms off' on this hardware."
+# Screensaver opens fullscreen terminal windows across every monitor,
+# cycling hyprctl focus between them — a burst of multi-output surface
+# churn that reproduced the same AMD GPU hang the dpms-off fix (below)
+# targets, via a different path (idle-cycle race, not an explicit dpms
+# call — see README "Hardware notes"). `omarchy toggle screensaver` is a
+# toggle, not a setter, so only flip it if not already off (idempotent).
+omarchy-toggle-enabled screensaver-off || omarchy toggle screensaver
+
+echo "Also confirm ~/.config/omarchy/plugins/mo.lock is the active lock service (omarchy-shell shell listPlugins) — never let anything on this hardware call 'hyprctl dispatch dpms off' / hl.dsp.dpms({ action = \"disable\" }). See README 'Hardware notes'."

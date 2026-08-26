@@ -24,7 +24,7 @@ tmux-project-bootstrapper ~/dev/astro-themes/pixeleers
 
 # dev-setup
 
-Launches a daily app layout into fixed workspaces: terminals, browsers, editor, whatever you configure. Relies on the workspace-to-monitor pinning in `~/.config/hypr/monitors.conf` (ultrawide = workspaces 1-6, laptop = workspaces 7-0) to land each app on the right screen.
+Launches a daily app layout into fixed workspaces: terminals, browsers, editor, whatever you configure. Relies on the workspace-to-monitor pinning in `~/.config/hypr/monitors.lua` (ultrawide = workspaces 1-6, laptop = workspaces 7-0) to land each app on the right screen.
 
 The app list is **data, not code**, and lives in **profiles** — YAML files under `~/.config/dev-setup/profiles/` (stowed from `~/dotfiles/dev-setup/.config/dev-setup/profiles/`), not in the script itself. Ships with one profile, `default`, but you can add more (e.g. `work`, `personal`, `browsing`) — see below.
 
@@ -88,7 +88,15 @@ To add, remove, or edit an app: just edit the profile's YAML file. Nothing else 
 
 ## dev-setup-prompt
 
-The interactive wrapper around `dev-setup`, styled like Omarchy's own update-confirm popup (`gum style`). This is what actually runs at login — see `exec-once` in `~/.config/hypr/autostart.conf`, which opens it in a floating centered terminal a few seconds after you log in.
+The interactive wrapper around `dev-setup`, styled like Omarchy's own update-confirm popup (`gum style`). This is what actually runs at login — see `o.exec_on_start(...)` in `~/.config/hypr/autostart.lua`, which opens it in a floating centered terminal a few seconds after you log in.
+
+**To run it manually** (re-trigger the popup any time, not just at login):
+
+```sh
+omarchy-launch-floating-terminal-with-presentation dev-setup-prompt
+```
+
+(Running `dev-setup-prompt` directly also works, just without the floating/centered window treatment — it needs a real TTY either way.)
 
 1. **Profile picker** — only shown if more than one profile exists; with just `default`, this step is skipped.
 2. A live summary of the chosen profile, then three choices (`gum choose`):

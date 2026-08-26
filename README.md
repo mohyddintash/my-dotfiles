@@ -234,6 +234,53 @@ Whichever mechanism is live, this is the first thing to check if the screen
 goes black after idle/lock and won't wake up. Check it after every `omarchy
 update`.
 
+### AMD GPU, second trigger: screensaver racing the lock (Quattro)
+
+The `mo.lock` fix above stops the *explicit* dpms-off call, but the machine
+hard-hung again after it was already deployed — a genuinely different
+trigger, confirmed from `journalctl -b -1`/`-2`/`-4`, not guessed:
+
+Two earlier locks that day (09:08:50, 18:27:21) completed cleanly
+(`process-exit: lock exitCode=0`, `secure=true`) — in both, the screensaver
+had already launched and exited *minutes* earlier, no overlap. The crash
+(20:07:25) had a different shape: a brief activity blip during the
+screensaver's 3-second launch grace window kept the idle cycle alive instead
+of cancelling it (`omarchy-shell`'s own idle service logs "screensaver cycle
+remains armed" for this case — a real quirk in
+`shell/plugins/services/idle/Service.qml`'s `handleActiveSignal()`, not
+something in this repo). So when the lock timer fired 150s later,
+`lockSystem()` reset `idledThisCycle`, the idle-monitor immediately reported
+"idle" again, and a **second, concurrent idle cycle started** — its
+screensaver launch (`omarchy-launch-screensaver`, which opens fullscreen
+terminal windows on *every* monitor in sequence, moving `hyprctl` focus
+between them) landed at nearly the same instant as the lock's own
+session-lock surface creation. That's a burst of simultaneous multi-output
+surface/modeset activity on both `eDP-1` and `HDMI-A-1` at once — the same
+class of GPU power-state churn the dpms-off bug belongs to, just reached via
+a different path (an idle-service race, not an explicit dpms dispatch).
+
+**The fix:** disable the screensaver outright — it's cosmetic, and it's the
+concrete element adding avoidable GPU-facing multi-output activity to this
+cycle. Locking itself is unaffected.
+
+```bash
+omarchy-toggle-enabled screensaver-off || omarchy toggle screensaver   # idempotent — it's a toggle, not a setter
+```
+
+This persists as a flag file at `~/.local/state/omarchy/toggles/screensaver-off`
+— **outside this repo**, so it does NOT survive a fresh install via `stow`.
+`install/install-hardware-quirks.sh` applies it (HP-gated, idempotent) so
+`bootstrap.sh` covers it on a new machine; if you ever run
+`omarchy-toggle-enabled screensaver-off` after a reinstall and get "currently
+enabled" back, re-run that script (or the one-liner above).
+
+This is arguably a real Omarchy shell bug independent of this hardware (an
+idle cycle re-triggering itself immediately after `lockSystem()`, launching
+a second screensaver mid-lock) and could be worth reporting upstream
+regardless of whether this specific GPU can tolerate it — see the `omarchy`
+skill's `contributing.md` for the reporting flow. Not filed as of this
+writing.
+
 ### Lid switch
 
 Logind defaults to `HandleLidSwitch=suspend`. A full suspend also triggers the AMD GPU resume bug. If the drop-in `/etc/systemd/logind.conf.d/90-lid.conf` is missing (e.g. after a reinstall), recreate it:

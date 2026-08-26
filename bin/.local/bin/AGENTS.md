@@ -4,15 +4,28 @@ Agent-facing notes for maintaining `dev-setup` and `dev-setup-prompt`. See `READ
 
 ## Dependencies
 
-- `hyprctl` — dispatches each app into a workspace via `[workspace N silent]`, so no window-class match rules are needed.
-- `uwsm-app --` — prefix used for every launch, for correct systemd scope tracking (matches the convention already used in `~/dotfiles/hyprland/.config/hypr/bindings.conf`).
+- `hyprctl eval` — dispatches each app into a workspace via
+  `hl.dsp.exec_cmd(cmd, { workspace = "N silent" })`, so no window-class
+  match rules are needed. **Not** `hyprctl dispatch exec "[workspace N
+  silent] cmd"` — that old bracket-modifier text broke under Quattro's
+  Hyprland: `hyprctl dispatch <X> <Y>` now evaluates as Lua `hl.dispatch(X
+  Y)`, and the bracket text isn't valid Lua (confirmed by actually
+  reproducing the parse error, then checking the current syntax against
+  the live Hyprland wiki — `hyprwm/hyprland-wiki`,
+  `content/Configuring/Basics/Dispatchers.md` — rather than guessing;
+  Hyprland's dispatcher/rule syntax has changed multiple times before).
+  `$cmd`, which may already contain its own quoting (see the `-ic "..."`
+  case below), is passed through `jq -Rs .` first — that renders it as a
+  JSON string literal, which is also valid Lua string syntax, so nothing
+  has to be manually escaped.
+- `uwsm-app --` — prefix used for every launch, for correct systemd scope tracking (matches the convention already used in `~/dotfiles/hyprland/.config/hypr/bindings.lua`).
 - `gum` (`/usr/bin/gum`) — used by `dev-setup-prompt` for the styled box (`gum style`), the 3-way picker (`gum choose`), and the Customize input prompts (`gum input`). Same tool Omarchy's own `omarchy-update-confirm` uses.
 - `yq` + `jq` — both already on this machine (`yq` here is the python-yq flavor: it converts YAML→JSON and pipes through `jq`, confirmed via `yq --version` reporting `jq-1.8.2`). `yq` reads each profile's YAML; `jq` extracts fields from each entry and builds/reads the override JSON. On a fresh machine: `sudo pacman -S yq jq`.
-- `omarchy-launch-floating-terminal-with-presentation` — the Omarchy binary that opens `dev-setup-prompt` in a centered floating terminal at login. Do not reimplement this; it already has the correct window rule (`+floating-window` tag on `org.omarchy.terminal`) in `~/.local/share/omarchy/default/hypr/apps/system.conf`.
+- `omarchy-launch-floating-terminal-with-presentation` — the Omarchy binary that opens `dev-setup-prompt` in a centered floating terminal, both at login and when run manually (`omarchy-launch-floating-terminal-with-presentation dev-setup-prompt` — see user-facing README). Do not reimplement this; it already has the correct window rule (`+floating-window` tag on `org.omarchy.terminal`) in `/usr/share/omarchy/default/hypr/apps/system.lua`.
 
 ## Workspace-to-monitor mapping
 
-Defined in `~/dotfiles/hyprland/.config/hypr/monitors.conf` (stowed to `~/.config/hypr/monitors.conf`):
+Defined in `~/dotfiles/hyprland/.config/hypr/monitors.lua` (stowed to `~/.config/hypr/monitors.lua`):
 
 - Ultrawide (`HDMI-A-1`): workspaces 1-6
 - Laptop (`eDP-1`): workspaces 7-0
@@ -21,7 +34,7 @@ Each `apps[]` entry's `workspace` in a profile file under
 `dev-setup/.config/dev-setup/profiles/` (its own package, see `CLAUDE.md`'s
 Packages table) must target a workspace number consistent with this split,
 or an app will silently land on the wrong monitor. If the monitor pinning
-in `monitors.conf` ever changes (e.g. different monitor names after a
+in `monitors.lua` ever changes (e.g. different monitor names after a
 hardware swap — check with `hyprctl monitors`), update both files together.
 
 ## Profiles — `dev-setup/.config/dev-setup/profiles/*.yml`
@@ -146,8 +159,9 @@ across two lines instead — see the top of `dev-setup`.
 - Run `dev-setup-prompt` directly to test the popup and the 3-way choice —
   needs a real TTY; it will fail with `could not open a new TTY` in a
   non-interactive/sandboxed shell.
-- After editing `monitors.conf` or `autostart.conf`, validate with
+- After editing `monitors.lua` or `autostart.lua`, validate with
   `hyprctl reload && hyprctl configerrors`.
-- The login popup itself (`exec-once` in `autostart.conf`) only fires on a
-  real login/reboot — `hyprctl reload` does not re-trigger `exec-once`
-  lines.
+- The login popup itself (`o.exec_on_start(...)` in `autostart.lua`) only
+  fires on a real login/reboot — `hyprctl reload` does not re-trigger it.
+  Run `omarchy-launch-floating-terminal-with-presentation dev-setup-prompt`
+  directly instead to test it without logging out.
