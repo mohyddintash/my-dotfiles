@@ -9,6 +9,11 @@ AMD GPU bug this would potentially (unconfirmed) relate to.
 
 - **Current BIOS: F.22, dated 2017-07-26** (`cat /sys/class/dmi/id/bios_version` / `bios_date`, no root needed)
 - **Model:** HP Pavilion x360 Convertible 15-br1xx (`cat /sys/class/dmi/id/product_name`)
+- **HP Product Number (for support.hp.com's product search): `2WA89EA#ABV`**
+  (`cat /sys/class/dmi/id/product_sku`, no root needed). This is a
+  model+configuration code shared by every identically-configured unit sold
+  — not this specific device's unique serial number, which is intentionally
+  not recorded here since this repo is public on GitHub.
 - **`fwupdmgr get-updates` explicitly lists "System Firmware" under "no available updates"** — Linux's own firmware-update channel (LVFS) has nothing newer listed for this device. Doesn't prove F.22 is HP's last-ever release (HP may simply never have published this model to LVFS at all) — just that this specific channel has nothing.
 - Have **not** confirmed whether a newer BIOS exists on HP's own site — `support.hp.com` is a heavy JavaScript app that timed out on direct fetch attempts, and general web search didn't surface a model-specific changelog.
 - Have **not** confirmed whether any newer BIOS (if one exists) actually addresses the ASPM/LTR suspend-buffer bug — HP's consumer BIOS changelogs essentially never name a specific low-level hardware bug like this, so there'd be no way to know without just trying it.
@@ -67,9 +72,8 @@ hand.
 ## What's still needed before doing this
 
 1. **The exact SoftPaq download for this model** — go to `support.hp.com`,
-   search the exact product number (on the sticker under the laptop, or via
-   `cat /sys/class/dmi/id/product_sku`), Software & Drivers → BIOS. See
-   what version is listed there and whether it's newer than F.22.
+   search product number `2WA89EA#ABV` (see above), Software & Drivers →
+   BIOS. See what version is listed there and whether it's newer than F.22.
 2. If a newer version exists, download it and hand it over (or the SoftPaq
    number) to extract and prepare the USB.
 3. If F.22 turns out to already be the latest HP ever shipped for this
