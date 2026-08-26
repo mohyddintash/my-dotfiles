@@ -3,8 +3,8 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 STOW_PACKAGES=(
-  hyprland waybar nvim ghostty kitty alacritty git fish tmux zed
-  mako walker btop fastfetch lazygit lazydocker mise imv makima
+  hyprland nvim ghostty kitty alacritty git fish tmux zed
+  btop fastfetch lazygit lazydocker mise imv makima
   swayosd starship bin dev-setup
 )
 

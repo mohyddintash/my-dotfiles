@@ -24,7 +24,6 @@ run install-beekeeper-studio.sh
 run install-bitwarden.sh
 run install-bluez.sh
 run install-efibootmgr.sh
-run install-elephant.sh
 run install-firefox.sh
 run install-fuse2.sh
 run install-fwupd.sh
@@ -43,7 +42,6 @@ run install-ttf-cascadia-mono-nerd.sh
 run install-visual-studio-code.sh
 run install-vivaldi.sh
 run install-vulkan-tools.sh
-run install-walker.sh
 run install-yq.sh
 run install-zen-browser.sh
 run install-zed.sh
