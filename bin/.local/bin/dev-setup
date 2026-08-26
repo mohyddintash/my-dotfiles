@@ -74,8 +74,17 @@ while IFS= read -r entry; do
     [[ -n $override ]] && cmd="$override"
   fi
 
-  # [workspace N silent] launches straight into that workspace without
-  # stealing focus — no window-class match rules needed.
-  hyprctl dispatch exec "[workspace $ws silent] $cmd"
+  # Quattro's Hyprland routes `hyprctl dispatch <X> <Y>` through a Lua
+  # evaluator as `hl.dispatch(X Y)` (see `hyprctl dispatch exec ...`
+  # error: "dispatch in lua is a shorthand for hl.dispatch(...)"), so the
+  # old bracket-modifier text (`exec [workspace N silent] cmd`) no longer
+  # parses — it has to be a real Lua call: hl.dsp.exec_cmd(cmd, rules).
+  # jq -Rs . renders $cmd as a JSON string literal, which is also valid
+  # Lua string syntax (same \" \\ escaping), avoiding manual escaping of
+  # whatever quoting is already inside $cmd (e.g. the `-ic "..."` case
+  # above). "$ws silent" is Hyprland's workspace-rule effect syntax —
+  # launches straight into that workspace without stealing focus.
+  cmd_lua=$(printf '%s' "$cmd" | jq -Rs .)
+  hyprctl eval "hl.dispatch(hl.dsp.exec_cmd($cmd_lua, { workspace = \"$ws silent\" }))"
   sleep 0.3
 done < <(yq -c '.apps[]' "$CONFIG")
