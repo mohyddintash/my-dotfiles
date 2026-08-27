@@ -14,10 +14,10 @@ AMD GPU bug this would potentially (unconfirmed) relate to.
   model+configuration code shared by every identically-configured unit sold
   — not this specific device's unique serial number, which is intentionally
   not recorded here since this repo is public on GitHub.
-- **`fwupdmgr get-updates` explicitly lists "System Firmware" under "no available updates"** — Linux's own firmware-update channel (LVFS) has nothing newer listed for this device. Doesn't prove F.22 is HP's last-ever release (HP may simply never have published this model to LVFS at all) — just that this specific channel has nothing.
-- **A newer BIOS almost certainly exists.** A sibling model on the exact same platform family (`15-br077nr`, same `15-br0xx`/`15-br1xx` generation) has been confirmed by a user on **BIOS F.32 Rev 5.0** — ten-plus versions past this machine's F.22. HP typically ships one BIOS SoftPaq per motherboard platform covering the whole family of marketing SKUs together, so this strongly suggests (not proven) a similarly newer version is available for this exact `15-br1xx` unit too.
-- **Could not confirm the exact version/date for `15-br1xx` specifically, or get it from an automated tool at all** — `support.hp.com` (timeout/empty JS shell on three separate attempts, including with the exact SKU as a query param), Softpedia, and Vinafix all blocked or failed automated fetching. This needs a real browser — see "What's still needed" below.
-- Have **not** confirmed whether any newer BIOS actually addresses the ASPM/LTR suspend-buffer bug — HP's consumer BIOS changelogs essentially never name a specific low-level hardware bug like this, so there'd be no way to know without just trying it.
+- **`fwupdmgr get-updates` explicitly lists "System Firmware" under "no available updates"** — Linux's own firmware-update channel (LVFS) has nothing newer listed for this device. Turns out this just means HP never published this model to LVFS — a newer BIOS does exist (below), fwupd just can't see it.
+- **CONFIRMED directly on this exact model's support.hp.com page (not a sibling-model guess): latest BIOS is `HP Notebook System BIOS Update (Intel Processors)`, version F.75 Rev.A, released May 17, 2024.** That's 53 versions past this machine's current F.22 (2017-07-26). An intermediate F.50 Rev.A (Aug 24, 2021) is also listed, confirming HP kept updating this platform steadily over years, not just once. ("Intel Processors" in the name refers to the platform variant — this laptop's CPU is Intel (i7-8550U); the AMD chip is a discrete GPU only, not the CPU platform HP is distinguishing here.)
+- Automated fetching of `support.hp.com` failed on every attempt from this session (empty/timed-out JS shell, tried the generic family page and a direct `?sku=` URL) — this F.75 confirmation came from the user manually loading the page in a real browser, filtering `Type: BIOS`, and screenshotting the result. Sharing that screenshot is what actually resolved this, not further automated searching.
+- Have **not** confirmed whether F.75 (or anything between F.22 and F.75) actually addresses the ASPM/LTR suspend-buffer bug — HP's consumer BIOS changelogs essentially never name a specific low-level hardware bug like this, so there'd be no way to know without reading each version's release notes on the download page, or just trying it.
 
 ## Mechanism: HP hardware BIOS Recovery (no OS involved at all)
 
@@ -72,20 +72,18 @@ hand.
 
 ## What's still needed before doing this
 
-1. **The exact SoftPaq download for this model — needs a real browser, not
-   an automated tool.** `support.hp.com` is a JavaScript app that returned
-   empty/timed-out content on every automated fetch attempt (tried the
-   generic family page, a direct `?sku=` URL, three times total). Open
-   `https://support.hp.com/us-en/drivers` yourself, search product number
-   `2WA89EA#ABV` (see above), Software & Drivers → BIOS. See what version
-   is listed and whether it's newer than F.22 — given the F.32 sibling-model
-   finding above, expect it to be.
-2. If a newer version exists, download it and hand it over (or the SoftPaq
-   number) to extract and prepare the USB.
-3. If F.22 turns out to already be the latest for this exact `15-br1xx`
-   variant specifically (possible even if `15-br0xx` got more updates —
-   variants within a family don't always get identical support windows),
-   this is moot.
+1. ~~Find the exact latest version for this model~~ — **done**: F.75 Rev.A,
+   May 17, 2024, confirmed above.
+2. **Download the F.75 Rev.A SoftPaq** from the same `support.hp.com` page
+   (product number `2WA89EA#ABV`, Type filter → BIOS) — the "Download" link
+   next to that row gives the Windows `.exe` installer.
+3. Extract it on Linux (`7z x`, or Wine if that fails — see "Getting the
+   actual BIOS file" above) to get the raw firmware image and any
+   accompanying signature/crisis-recovery files.
+4. Prepare the USB stick and flash via the Windows+B recovery combo or F10
+   setup's "Flash System BIOS" option (see "Mechanism" above). Exact file
+   naming/folder layout HP expects is only knowable once the real F.75
+   SoftPaq is extracted and inspected.
 
 ## Sources
 
@@ -93,17 +91,21 @@ hand.
 - [Instructions to Update the BIOS/UEFI for an HP Laptop on Linux (GitHub gist)](https://gist.github.com/eNV25/c8001491dc0440656ff7b0ae18993ba1)
 - [HP Notebook PCs - Recovering the BIOS (official HP doc)](https://support.hp.com/us-en/document/ish_3932413-2337994-16)
 - [Flashing BIOS from Linux — ArchWiki](https://wiki.archlinux.org/title/Flashing_BIOS_from_Linux)
-- F.32 Rev 5.0 on a `15-br077nr` (sibling model, same platform family) — found via web search summary of an HP Support Community/forum discussion; the source thread itself was behind a paywall/bot-block (`tollbit.overclock.net`, HTTP 402) so this is secondhand, not independently verified against the original post.
+- `support.hp.com` driver list for this exact model (product number
+  `2WA89EA#ABV`), `Type: BIOS` filter — confirmed F.75 Rev.A (2024-05-17)
+  and F.50 Rev.A (2021-08-24) via a screenshot the user provided directly;
+  not independently re-fetched by an automated tool.
 
-## Overall recommendation (updated after the F.32 finding)
+## Overall recommendation (updated after confirming F.75 exists)
 
 This laptop is roughly 9 years old (BIOS dated 2017, `i7-8550U` CPU from
-that era). The two current software-level workarounds (`mo.lock` plugin
-clone + screensaver disabled — see README "Hardware notes") are confirmed
-working via direct testing. A newer BIOS now looks likely to exist (not
-just theoretically possible), which shifts this from "probably not worth
-it" toward "worth a five-minute look" — checking `support.hp.com` in an
-actual browser costs little. Whether it's worth the flash itself still
-depends on what's actually listed there and whether its notes suggest
-anything relevant; the uncertainty over whether it fixes *this specific*
-bug remains unchanged. Still not urgent given the working mitigations.
+that era), but HP kept it updated far more recently than that — F.75 is
+from May 2024, not some decade-old abandonware. The two current
+software-level workarounds (`mo.lock` plugin clone + screensaver disabled —
+see README "Hardware notes") are confirmed working via direct testing, so
+there's no urgency. But given a real, current, actively-maintained BIOS
+update exists, downloading it and at least reading its own release notes
+(HP's download page typically has a "What's new" / changelog section per
+version) is a low-cost next step whenever there's time for it — it might
+turn out to be irrelevant to the ASPM/LTR bug, or it might not; won't know
+without looking.
