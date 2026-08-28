@@ -35,7 +35,17 @@ o.bind("SUPER + SHIFT + T", "Activity", { tui = "btop" })
 hl.unbind("SUPER + SHIFT + W")
 o.bind("SUPER + SHIFT + W", "Typora", "uwsm-app -- typora --enable-wayland-ime")
 
--- Manual laptop-display kill switch + reload, for when eDP-1 needs a hard
--- reset (reload re-enables it with correct resolution/scale from monitors.lua).
-o.bind("SUPER + SHIFT + CTRL + D", "Disable laptop display", "hyprctl keyword monitor eDP-1, disable")
+-- Manual laptop-display kill switch + reload, for when eDP-1 glitches
+-- (weird flickering, looks broken) and needs a hard reset. Ported from
+-- Omarchy 3, where `hyprctl keyword monitor eDP-1, disable` still worked —
+-- Quattro's Lua-parser Hyprland rejects `keyword` entirely ("keyword can't
+-- work with non-legacy parsers. Use eval."), so this silently did nothing
+-- since the migration. hl.monitor() is the direct Lua-API equivalent (same
+-- function monitors.lua itself uses), called in-process instead of shelling
+-- out — reload re-enables it with correct resolution/scale from
+-- monitors.lua, unaffected by this bug since `hyprctl reload` isn't a
+-- `keyword` call.
+o.bind("SUPER + SHIFT + CTRL + D", "Disable laptop display", function()
+  hl.monitor({ output = "eDP-1", disabled = true })
+end)
 o.bind("SUPER + SHIFT + CTRL + F", "Reload Hyprland config", "hyprctl reload")
