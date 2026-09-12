@@ -145,14 +145,21 @@ defaults. If you accidentally do, your config is backed up with a timestamp suff
 
 ## After running omarchy update
 
-`omarchy update` may overwrite `hypridle.conf` and `hyprland.conf` via migrations.
+`omarchy update` may overwrite `hyprland.conf` and other configs via migrations.
 It creates a `.bak.<timestamp>` backup first, but you should verify your customisations survived:
 
 ```bash
 git diff hyprland/.config/hypr/
 ```
 
-In particular, check that `hypridle.conf` still has `OMARCHY_LOCK_ONLY=true` on the idle lock listener (see hardware notes below). If it's missing, reapply it before the next idle timeout.
+In particular, check that `mo.lock` is still the active lock plugin (see hardware notes below) — an update or `omarchy refresh shell` can silently switch it back to stock `omarchy.lock`, which reintroduces the dpms-off hang:
+
+```bash
+omarchy-shell shell listPlugins | grep -A2 '"lock"'
+# mo.lock should show enabled: true, omarchy.lock should show enabled: false
+```
+
+If it's reverted, reapply it before the next idle timeout. (`hypridle.conf`'s `OMARCHY_LOCK_ONLY=true` was the Omarchy 3 mechanism for this — `hypridle` isn't installed under Quattro and that file is no longer read; see hardware notes.)
 
 ## Dev setup auto-launch
 
