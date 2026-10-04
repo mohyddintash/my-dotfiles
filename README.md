@@ -166,9 +166,9 @@ If it's reverted, reapply it before the next idle timeout. (`hypridle.conf`'s `O
 At login, a floating popup lets you pick a **profile** (a named app layout —
 e.g. work, personal) and launch it into fixed workspaces pinned to each
 monitor, or customize select terminals' startup commands for that login
-only. Triggered by `exec-once` in `hyprland/.config/hypr/autostart.conf`,
+only. Triggered by `o.exec_on_start` in `hyprland/.config/hypr/autostart.lua`,
 implemented in `bin/.local/bin/dev-setup` and `dev-setup-prompt`, workspace
-pinning lives in `hyprland/.config/hypr/monitors.conf`. Profiles are data,
+pinning lives in `hyprland/.config/hypr/monitors.lua`. Profiles are data,
 not code — YAML files under `dev-setup/.config/dev-setup/profiles/`; ships
 with one (`default.yml`), add more by copying it.
 

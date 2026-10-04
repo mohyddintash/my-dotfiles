@@ -11,29 +11,29 @@ apps:
   - id: term-scholar-1
     workspace: 1
     terminal: true
-    cwd: /home/mo/dev/scholar-site
+    cwd: /home/mo/dev/scholar-site-workspace/scholar-site/
 
   - id: term-scholar-2
     workspace: 1
     terminal: true
-    cwd: /home/mo/dev/scholar-site
+    cwd: /home/mo/dev/scholar-site-workspace/scholar-site/
 
   - id: term-scholar-3
     workspace: 1
     terminal: true
-    cwd: /home/mo/dev/scholar-site
+    cwd: /home/mo/dev/scholar-site-workspace/scholar-site/
 
-  # WS2: 2 terminals in scholar-site, each running `claude`
+  # WS2: 2 terminals in the assim-haitham client project, each running `claude`
   - id: term-scholar-claude-1
     workspace: 2
     terminal: true
-    cwd: /home/mo/dev/scholar-site
+    cwd: /home/mo/dev/scholar-site-workspace/clients/assim-haitham/
     run: claude
 
   - id: term-scholar-claude-2
     workspace: 2
     terminal: true
-    cwd: /home/mo/dev/scholar-site
+    cwd: /home/mo/dev/scholar-site-workspace/clients/assim-haitham/
     run: claude
 
   - id: firefox
