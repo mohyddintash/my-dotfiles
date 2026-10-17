@@ -1,5 +1,5 @@
 # dev-setup profile — each entry launches one app into a Hyprland workspace.
-# Workspace numbers follow hyprland/.config/hypr/monitors.conf pinning
+# Workspace numbers follow hyprland/.config/hypr/monitors.lua pinning
 # (1-6 = ultrawide, 7-0 = laptop). See bin/.local/bin/AGENTS.md for the
 # full schema reference and how the login popup / profile / override
 # mechanisms use this.

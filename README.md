@@ -159,7 +159,7 @@ omarchy-shell shell listPlugins | grep -A2 '"lock"'
 # mo.lock should show enabled: true, omarchy.lock should show enabled: false
 ```
 
-If it's reverted, reapply it before the next idle timeout. (`hypridle.conf`'s `OMARCHY_LOCK_ONLY=true` was the Omarchy 3 mechanism for this — `hypridle` isn't installed under Quattro and that file is no longer read; see hardware notes.)
+If it's reverted, reapply it before the next idle timeout. (`hypridle.conf`'s `OMARCHY_LOCK_ONLY=true` was the Omarchy 3 mechanism for this — `hypridle` isn't installed under Quattro and that file has been removed from this repo; see hardware notes.)
 
 ## Dev setup auto-launch
 
@@ -235,7 +235,8 @@ on-timeout = OMARCHY_LOCK_ONLY=true omarchy-system-lock
 ```
 
 Kept here for reference only in case of a rollback — `hypridle` is not
-installed on Quattro and this file is no longer read.
+installed on Quattro and the file was removed from this repo (it's in git
+history).
 
 Whichever mechanism is live, this is the first thing to check if the screen
 goes black after idle/lock and won't wake up. Check it after every `omarchy

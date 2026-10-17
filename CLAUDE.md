@@ -98,13 +98,13 @@ stow -D -t ~ nvim-lazyvim && stow -t ~ nvim   # switch back
 ## Hyprland config files (Lua, post-Quattro)
 
 Omarchy 3's `.conf` files (`hyprland.conf`, `bindings.conf`, `monitors.conf`,
-`input.conf`, `looknfeel.conf`, `autostart.conf`, `envs.conf`) are **no
-longer read at all** — they still exist on disk in this repo as inert
-leftovers from the pre-Quattro setup (kept, not deleted, in case something
-still references them; safe to ignore). Hyprland now loads
+`input.conf`, `looknfeel.conf`, `autostart.conf`, `envs.conf`), plus
+`hypridle.conf`/`hyprlock.conf` (neither program is installed on Quattro),
+are **no longer read at all** and were deleted from this repo — recover
+them from git history if ever needed. Hyprland now loads
 `~/.config/hypr/hyprland.lua`, which does `require("hypr.monitors")`,
 `require("hypr.input")`, `require("hypr.bindings")`, `require("hypr.looknfeel")`,
-`require("hypr.autostart")` — edit those `.lua` files, not the `.conf` ones.
+`require("hypr.autostart")` — edit those `.lua` files.
 `hyprsunset.conf` and `xdph.conf` are the two exceptions still read as plain
 `.conf` (separate processes, not part of the Lua config).
 
@@ -144,17 +144,16 @@ stowed — see Packages table above); full rationale and the exact code diff
 are in `README.md`'s Hardware notes section.
 
 **`environment/.config/environment.d/hp-amdgpu-workaround.env` (Omarchy 3
-era) no longer does anything under Quattro — confirmed empirically, not
-assumed.** It sets `OMARCHY_LOCK_ONLY=true` session-wide, which used to make
+era) did nothing under Quattro — confirmed empirically, not assumed — and
+the `environment` package was removed.** It set `OMARCHY_LOCK_ONLY=true` session-wide, which used to make
 `omarchy-system-lock` skip the dpms-off call. Neither the current
 `omarchy-system-lock` script nor `omarchy-brightness-display` reference that
 env var anymore (read both their sources directly — the "off" case in
 `omarchy-brightness-display` dispatches dpms unconditionally). Proof: this
 var was active the entire time and the machine still hard-locked from a
-dpms-off call during Quattro testing, before the `mo.lock` fix existed. The
-file is left in place (harmless, costs nothing) but **do not treat it as a
-working safeguard** — the `mo.lock` plugin clone is the only thing
-currently preventing this crash. If a future Omarchy version adds a real
+dpms-off call during Quattro testing, before the `mo.lock` fix existed.
+**Do not reintroduce it as a safeguard** — the `mo.lock` plugin clone is
+the only thing currently preventing this crash. If a future Omarchy version adds a real
 `shell.json` knob for this, prefer that over `mo.lock` and delete the clone.
 
 **Never** let anything on this machine call `hyprctl dispatch dpms off` /
