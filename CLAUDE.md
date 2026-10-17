@@ -66,6 +66,7 @@ correcting once (Omarchy 3's `omarchy-restart-waybar` etc. no longer exist).
 | `starship` | `~/.config/starship.toml` | Single file, not a directory |
 | `bin` | `~/.local/bin/` | See `bin/.local/bin/AGENTS.md` for the `dev-setup` login-prompt scripts |
 | `dev-setup` | `~/.config/dev-setup/` | `profiles/*.yml` — the app-list profiles the `dev-setup`/`dev-setup-prompt` scripts (in `bin`) read; see `bin/.local/bin/AGENTS.md` |
+| `omarchy` | `~/.config/omarchy/` (individual files only) | `extensions/omarchy-menu.jsonc` (menu overrides — hides the retired Gemini agent) and `defaults/agent` (default coding agent). `~/.config/omarchy/` is a real dir with Omarchy-managed content, so stow links just these files; never add `plugins/` here (see `quickshell-plugins/` below) |
 | all others | `~/.config/<pkg>/` | |
 
 **`quickshell-plugins/<id>/` is NOT a stow package** — it's the one deliberate

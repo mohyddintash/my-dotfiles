@@ -81,7 +81,7 @@ sudo pacman -S stow
 cd ~/dotfiles
 stow -t ~ hyprland nvim ghostty kitty alacritty git fish tmux zed \
          btop fastfetch lazygit lazydocker mise imv makima \
-         swayosd starship bin dev-setup
+         swayosd starship bin dev-setup omarchy
 
 # quickshell-plugins/ is copied, not stowed (see Structure above):
 for plugin in quickshell-plugins/*/; do
