@@ -1,0 +1,5 @@
+# Global markdownlint rules for nvim (passed via --config in
+# lua/plugins/markdown.lua).
+config:
+  # Line length: notes and docs here are written as one line per paragraph.
+  MD013: false
