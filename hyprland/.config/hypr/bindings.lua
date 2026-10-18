@@ -31,10 +31,6 @@
 -- Activity monitor (not one of Quattro's default preinstalled bindings).
 o.bind("SUPER + SHIFT + T", "Activity", { tui = "btop" })
 
--- Quattro's default binds SUPER+SHIFT+W to Omawrite. We use Typora instead.
-hl.unbind("SUPER + SHIFT + W")
-o.bind("SUPER + SHIFT + W", "Typora", "uwsm-app -- typora --enable-wayland-ime")
-
 -- Manual laptop-display kill switch + reload, for when eDP-1 glitches
 -- (weird flickering, looks broken) and needs a hard reset. Ported from
 -- Omarchy 3, where `hyprctl keyword monitor eDP-1, disable` still worked —

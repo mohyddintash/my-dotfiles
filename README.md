@@ -79,6 +79,9 @@ using them).
 ```bash
 sudo pacman -S stow
 cd ~/dotfiles
+# On a fresh install stow refuses wherever Omarchy already wrote a real file.
+# install/install-dotfiles.sh runs this same stow, lists each conflict with a
+# diff command and the steps to resolve it, and is safe to re-run.
 stow -t ~ hyprland nvim ghostty kitty alacritty git fish tmux zed \
          btop fastfetch lazygit lazydocker mise imv makima \
          swayosd starship bin dev-setup omarchy

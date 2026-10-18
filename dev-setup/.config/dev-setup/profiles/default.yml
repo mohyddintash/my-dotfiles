@@ -36,6 +36,6 @@ apps:
     workspace: 4
     cmd: "uwsm-app -- zen-browser"
 
-  - id: typora
+  - id: omawrite
     workspace: 7
-    cmd: "uwsm-app -- typora"
+    cmd: "uwsm-app -- omawrite"
