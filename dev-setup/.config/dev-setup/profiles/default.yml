@@ -1,6 +1,6 @@
 # dev-setup profile — each entry launches one app into a Hyprland workspace.
 # Workspace numbers follow hyprland/.config/hypr/monitors.lua pinning
-# (1-6 = ultrawide, 7-0 = laptop). See bin/.local/bin/AGENTS.md for the
+# (1-8 = ultrawide, 9-0 = laptop). See bin/.local/bin/AGENTS.md for the
 # full schema reference and how the login popup / profile / override
 # mechanisms use this.
 #
@@ -37,5 +37,5 @@ apps:
     cmd: "uwsm-app -- zen-browser"
 
   - id: omawrite
-    workspace: 7
+    workspace: 9
     cmd: "uwsm-app -- omawrite"

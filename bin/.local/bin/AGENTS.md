@@ -27,8 +27,8 @@ Agent-facing notes for maintaining `dev-setup` and `dev-setup-prompt`. See `READ
 
 Defined in `~/dotfiles/hyprland/.config/hypr/monitors.lua` (stowed to `~/.config/hypr/monitors.lua`):
 
-- Ultrawide (`HDMI-A-1`): workspaces 1-6
-- Laptop (`eDP-1`): workspaces 7-0
+- Ultrawide (`HDMI-A-1`): workspaces 1-8
+- Laptop (`eDP-1`): workspaces 9-0
 
 Each `apps[]` entry's `workspace` in a profile file under
 `dev-setup/.config/dev-setup/profiles/` (its own package, see `CLAUDE.md`'s

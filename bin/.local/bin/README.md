@@ -24,7 +24,7 @@ tmux-project-bootstrapper ~/dev/astro-themes/pixeleers
 
 # dev-setup
 
-Launches a daily app layout into fixed workspaces: terminals, browsers, editor, whatever you configure. Relies on the workspace-to-monitor pinning in `~/.config/hypr/monitors.lua` (ultrawide = workspaces 1-6, laptop = workspaces 7-0) to land each app on the right screen.
+Launches a daily app layout into fixed workspaces: terminals, browsers, editor, whatever you configure. Relies on the workspace-to-monitor pinning in `~/.config/hypr/monitors.lua` (ultrawide = workspaces 1-8, laptop = workspaces 9-0) to land each app on the right screen.
 
 The app list is **data, not code**, and lives in **profiles** — YAML files under `~/.config/dev-setup/profiles/` (stowed from `~/dotfiles/dev-setup/.config/dev-setup/profiles/`), not in the script itself. Ships with one profile, `default`, but you can add more (e.g. `work`, `personal`, `browsing`) — see below.
 

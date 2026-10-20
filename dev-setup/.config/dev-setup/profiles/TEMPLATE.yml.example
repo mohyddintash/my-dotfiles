@@ -9,8 +9,8 @@
 #
 # Workspace numbers must follow hyprland/.config/hypr/monitors.conf's
 # pinning (check with `hyprctl monitors` if unsure which is which):
-#   - ultrawide (HDMI-A-1): workspaces 1-6
-#   - laptop    (eDP-1):    workspaces 7-0
+#   - ultrawide (HDMI-A-1): workspaces 1-8
+#   - laptop    (eDP-1):    workspaces 9-0
 
 # Default terminal emulator command for every `terminal: true` entry below.
 # NOTE: this is profile-wide — there's currently no way to give individual

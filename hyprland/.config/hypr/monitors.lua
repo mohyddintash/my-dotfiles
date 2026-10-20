@@ -33,17 +33,17 @@ hl.monitor({ output = "eDP-1", mode = "1920x1080@60", position = "1408x864", sca
 
 -- Pin workspaces to monitors so switching workspaces never "steals" a
 -- workspace from the other screen. Ultrawide is the main monitor, so it
--- gets more workspaces (1-6); laptop gets the rest (7-0).
--- bin/.local/bin/dev-setup's APPS array depends on this exact split — if
--- monitor names or the pinning change, update both together (see
--- bin/.local/bin/AGENTS.md).
+-- gets more workspaces (1-8); laptop gets the rest (9-0).
+-- The dev-setup profiles (dev-setup/.config/dev-setup/profiles/*.yml)
+-- depend on this exact split — if monitor names or the pinning change,
+-- update both together (see bin/.local/bin/AGENTS.md).
 hl.workspace_rule({ workspace = "1", monitor = "HDMI-A-1", default = true, persistent = true })
 hl.workspace_rule({ workspace = "2", monitor = "HDMI-A-1", persistent = true })
 hl.workspace_rule({ workspace = "3", monitor = "HDMI-A-1", persistent = true })
 hl.workspace_rule({ workspace = "4", monitor = "HDMI-A-1", persistent = true })
 hl.workspace_rule({ workspace = "5", monitor = "HDMI-A-1", persistent = true })
 hl.workspace_rule({ workspace = "6", monitor = "HDMI-A-1", persistent = true })
-hl.workspace_rule({ workspace = "7", monitor = "eDP-1", default = true, persistent = true })
-hl.workspace_rule({ workspace = "8", monitor = "eDP-1", persistent = true })
-hl.workspace_rule({ workspace = "9", monitor = "eDP-1", persistent = true })
+hl.workspace_rule({ workspace = "7", monitor = "HDMI-A-1", persistent = true })
+hl.workspace_rule({ workspace = "8", monitor = "HDMI-A-1", persistent = true })
+hl.workspace_rule({ workspace = "9", monitor = "eDP-1", default = true, persistent = true })
 hl.workspace_rule({ workspace = "10", monitor = "eDP-1", persistent = true })
