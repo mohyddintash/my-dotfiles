@@ -165,3 +165,29 @@ across two lines instead — see the top of `dev-setup`.
   fires on a real login/reboot — `hyprctl reload` does not re-trigger it.
   Run `omarchy-launch-floating-terminal-with-presentation dev-setup-prompt`
   directly instead to test it without logging out.
+
+## herdr-session — `dev-setup/.config/dev-setup/herdr/*.yml`
+
+`herdr-session [spec]` builds Herdr spaces/tabs from a spec (schema in the
+comment at the top of `herdr/last-session.yml`) through `herdr-app do
+space.new | tab.new | pane.split`. Herdr has no spaces file, only commands;
+read `~/.config/herdr-app/AGENTS.md` (rewritten by the app on every start)
+before changing this. Things confirmed by testing:
+
+- `space.new` returns `{space, tab, terminal}` but no `pane`; the script
+  looks the pane up by terminal in `herdr-app ls` before `pane.split`.
+  Split panes start in the split pane's folder, so `pane.split` doesn't need
+  a folder (it has no folder argument).
+- `--argv` must be a JSON array. Build it with `jq -cRn '[inputs]'`, not
+  `jq --args`: jq treats `--resume` after `--args` as one of its own options.
+- `herdr-app ls`'s `app` is stale: it keeps saying `claude-code` after Claude
+  exits back to the shell. The repair check uses `hc ls --json`'s `agent`
+  instead (`claude-code` vs `bash`).
+- Matching is by space name, then tab name. Renaming a space or tab in
+  Herdr means the next run creates a fresh one.
+- Never resume a Claude session that's open in another terminal: two
+  processes on one session diverge. Close the old window first.
+- `herdr-app shot` returns the last frame drawn. While Herdr's workspace
+  isn't visible, that frame can be old, so check `herdr-app ls` / `status`.
+
+**Chats open elsewhere are skipped.** Before resuming a `claude --resume <id>` tab, herdr-session checks `~/.claude/sessions/<pid>.json` for a live process holding that session id. If the chat is open in another window, the tab is made (or left) as a plain shell and a message says so; running herdr-session again after closing that window resumes it there. This prevents two live copies writing to one chat.

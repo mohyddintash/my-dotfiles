@@ -107,3 +107,18 @@ omarchy-launch-floating-terminal-with-presentation dev-setup-prompt
 
      Everything you don't select is left exactly as configured. Nothing is written back to the profile's YAML file — it's a same-session override, gone after this launch.
    - **Skip** — leaves a clean desktop, does nothing.
+
+# herdr-session
+
+Fills the [Herdr](https://herdr.dev) app with spaces and tabs from a spec file under `~/.config/dev-setup/herdr/` (stowed from `~/dotfiles/dev-setup/.config/dev-setup/herdr/`). The `herdr` dev-setup profile runs it at login, next to Herdr itself, the browsers, Bitwarden and the learning guide.
+
+```bash
+herdr-session                 # uses herdr/last-session.yml
+herdr-session <spec>          # uses herdr/<spec>.yml
+```
+
+`herdr/last-session.yml` holds the terminals of the `last-session` profile: one Herdr space per project, one named tab per Claude chat (`claude --resume <id>`), and plain-shell tabs with optional side-by-side panes.
+
+It's safe to run again at any time. Spaces and tabs are matched by name, so nothing is duplicated: missing ones are created, and existing ones are left alone. The one exception is a Claude chat that has stopped. Herdr keeps terminals running while its window is closed, but after a reboot it brings each one back as a plain shell without rerunning its command. So for a tab whose `run` is a `claude ...` command, herdr-session sends that command again if Claude isn't running there.
+
+**Chats open elsewhere are skipped.** Before resuming a `claude --resume <id>` tab, herdr-session checks `~/.claude/sessions/<pid>.json` for a live process holding that session id. If the chat is open in another window, the tab is made (or left) as a plain shell and a message says so; running herdr-session again after closing that window resumes it there. This prevents two live copies writing to one chat.

@@ -1,0 +1,126 @@
+#!/bin/bash
+set -euo pipefail
+
+# Fills the Herdr app with the spaces and tabs described by a spec YAML file
+# under ~/.config/dev-setup/herdr/ (e.g. `herdr-session last-session`). See
+# bin/.local/bin/AGENTS.md for the schema and bin/.local/bin/README.md for
+# usage.
+#
+# Safe to re-run: spaces and tabs are matched by name, so existing ones are
+# never duplicated. Herdr keeps terminals alive while its window is closed,
+# but after a reboot it gives each one a plain shell and never reruns its
+# command, so for an existing tab whose `run` is a `claude ...` command and
+# whose first terminal isn't running Claude any more, the command is sent
+# again.
+
+SPEC="$HOME/.config/dev-setup/herdr/${1:-last-session}.yml"
+
+if [[ ! -f $SPEC ]]; then
+  echo "herdr-session: no such spec: $SPEC" >&2
+  exit 1
+fi
+
+# Wait for the Herdr window (dev-setup's herdr profile starts it alongside
+# this script). Run by hand with Herdr closed, start it ourselves.
+if ! herdr-app status >/dev/null 2>&1 && ! pgrep -x herdr-app >/dev/null; then
+  uwsm-app -- herdr-app &
+fi
+for _ in $(seq 60); do
+  herdr-app status >/dev/null 2>&1 && break
+  sleep 0.5
+done
+if ! herdr-app status >/dev/null 2>&1; then
+  echo "herdr-session: Herdr didn't start within 30s" >&2
+  exit 1
+fi
+
+# `run` as a JSON argv array ("claude --resume <id>" → ["claude","--resume","<id>"]).
+# Plain word splitting: quoted arguments aren't supported in `run`.
+argv_json() {
+  local -a words
+  read -ra words <<<"$1"
+  # Not `jq --args`: jq would take words like --resume as its own options.
+  printf '%s\n' "${words[@]}" | jq -cRn '[inputs]'
+}
+
+# Split the pane holding $1 (a terminal address) to the right, $2 - 1 times,
+# with plain shells. New panes start in the split pane's folder.
+add_panes() {
+  local terminal=$1 count=$2 pane
+  pane=$(herdr-app ls | jq -r --arg t "$terminal" \
+    '.spaces[].tabs[].terminals[] | select(.terminal == $t) | .pane')
+  for ((i = 1; i < count; i++)); do
+    herdr-app do pane.split --direction right --pane "$pane" >/dev/null
+  done
+}
+
+# True if `run` resumes a Claude chat that is already open somewhere (another
+# terminal window, or another Herdr tab). Resuming it again would give two live
+# copies writing to one chat, so such a tab is made as a plain shell instead and
+# a later run resumes it once the other copy is closed.
+live_elsewhere() {
+  local id f pid
+  [[ $1 =~ ^claude\ .*--resume\ ([0-9a-f-]+) ]] || return 1
+  id=${BASH_REMATCH[1]}
+  for f in "$HOME"/.claude/sessions/*.json; do
+    [[ -f $f ]] || continue
+    pid=$(basename "$f" .json)
+    [[ $(jq -r '.sessionId' "$f" 2>/dev/null) == "$id" ]] && kill -0 "$pid" 2>/dev/null && return 0
+  done
+  return 1
+}
+
+while IFS= read -r space; do
+  name=$(jq -r '.name' <<<"$space")
+  folder=$(jq -r '.folder' <<<"$space")
+  folder="${folder/#\~/$HOME}"
+  ls_json=$(herdr-app ls)
+  space_id=$(jq -r --arg n "$name" \
+    'first(.spaces[] | select(.name == $n) | .id) // empty' <<<"$ls_json")
+
+  while IFS= read -r tab; do
+    tab_name=$(jq -r '.name' <<<"$tab")
+    run=$(jq -r '.run // empty' <<<"$tab")
+    panes=$(jq -r '.panes // 1' <<<"$tab")
+    busy=
+    live_elsewhere "$run" && busy=1
+    skipped="herdr-session: $name / $tab_name is open in another window; leaving it there (re-run after closing it)"
+    args=(--name "$tab_name" --folder "$folder")
+    start=$run
+    [[ -n $busy ]] && start=
+    [[ -n $start ]] && args+=(--argv "$(argv_json "$start")")
+
+    if [[ -z $space_id ]]; then
+      # The space's first tab comes with the space itself.
+      out=$(herdr-app do space.new --name "$name" --folder "$folder" --tab "$tab_name" \
+        ${start:+--argv "$(argv_json "$start")"})
+      space_id=$(jq -r '.space' <<<"$out")
+      echo "herdr-session: created space $name / $tab_name"
+      [[ -n $busy ]] && echo "$skipped"
+    else
+      existing=$(jq -c --arg s "$space_id" --arg t "$tab_name" \
+        'first(.spaces[] | select(.id == $s) | .tabs[] | select(.name == $t)) // empty' <<<"$ls_json")
+      if [[ -n $existing ]]; then
+        first=$(jq -r '.terminals[0].terminal' <<<"$existing")
+        # What the core says runs there now. Not `herdr-app ls`'s `app`, which
+        # keeps showing claude-code after Claude exits back to the shell.
+        app=$(hc ls --json | jq -r --arg t "$first" \
+          'first(.. | objects | select(.address? == $t) | .agent) // empty')
+        if [[ $run == claude* && $app != claude-code ]]; then
+          if [[ -n $busy ]]; then
+            echo "$skipped"
+          else
+            hc send "$first" "$run" >/dev/null
+            echo "herdr-session: resumed $name / $tab_name"
+          fi
+        fi
+        continue
+      fi
+      out=$(herdr-app do tab.new --space "$space_id" "${args[@]}")
+      echo "herdr-session: created tab $name / $tab_name"
+      [[ -n $busy ]] && echo "$skipped"
+    fi
+
+    ((panes > 1)) && add_panes "$(jq -r '.terminal' <<<"$out")" "$panes"
+  done < <(jq -c '.tabs[]' <<<"$space")
+done < <(yq -c '.spaces[]' "$SPEC")

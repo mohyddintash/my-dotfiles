@@ -1,0 +1,96 @@
+# herdr-session spec: the terminals of profiles/last-session.yml (snapshot of
+# 2026-11-04), as Herdr spaces and tabs instead of separate windows.
+# Read by ~/.local/bin/herdr-session; see bin/.local/bin/AGENTS.md.
+#
+# spaces[]: one per project.
+#   name    Herdr space name; also how herdr-session recognises it on re-runs
+#   folder  where its terminals start (`~` is expanded)
+#   tabs[]:
+#     name   tab name; also how herdr-session recognises it on re-runs
+#     run    optional command for the tab's first terminal. A `claude ...`
+#            run is re-sent if the chat isn't running any more (after a reboot)
+#     panes  optional, default 1; extra panes are plain shells split to the right
+#
+# Browsers, Bitwarden and the learning guide are in profiles/herdr.yml.
+
+spaces:
+  - name: scholar-site
+    folder: /home/mo/dev/scholar-site-workspace/scholar-site
+    tabs:
+      - name: About page UI
+        run: claude --resume 2adbc18d-30f4-4ca2-800b-bba4fd5d76da
+      - name: shell
+        panes: 2
+      - name: docker
+        run: sudo docker compose up
+        panes: 2
+
+  - name: assim-haitham
+    folder: /home/mo/dev/scholar-site-workspace/clients/assim-haitham
+    tabs:
+      - name: README-CLIENT steps
+        run: claude --resume acd7012b-3af0-46d7-a299-83759b2671c7
+
+  - name: astro
+    folder: /home/mo/dev/scholar-site-workspace/astro
+    tabs:
+      - name: Astro flavor backlog
+        run: claude --resume 0d32f242-3af5-4ce2-8f5b-9bfaec899548
+      - name: shell
+
+  - name: pixeleers
+    folder: /home/mo/dev/astro-themes/pixeleers
+    tabs:
+      - name: API token
+        run: claude --resume 72465f77-d1ae-4409-9350-b34188845ecc
+      - name: Astro 7 upgrade
+        run: claude --resume 0cdf4427-02d7-4c75-93fa-46e8886e286b
+      - name: migration guide
+        run: claude --resume da4098a6-74c7-4ece-88be-27ce7e251f88
+      - name: PostHog analytics review
+        run: claude --resume cbe8e50f-c567-495d-8a22-d0de21d5d70d
+
+  - name: bahub-web
+    folder: /home/mo/dev/bahub/bahub-web
+    tabs:
+      - name: SETUP.md walkthrough
+        run: claude --resume d54aff57-fcbb-4120-b16f-1881c92a3671
+
+  - name: pixeleers-toolbox
+    folder: /home/mo/pixeleers-toolbox
+    tabs:
+      - name: toolbox
+        run: claude --resume 43703be6-ae80-492d-b348-15d1e74f3dca
+
+  - name: caribbean-fusion
+    folder: /home/mo/dev/caribbean-fusion
+    tabs:
+      - name: Friday pre-orders
+        run: claude --resume 4bde57de-3958-4827-8be2-ab5b78980292
+
+  - name: one-way-to-paradise
+    folder: /home/mo/dev/one-way-to-paradise
+    tabs:
+      - name: Session history recovery
+        run: claude --resume 1d66da09-29c9-4a4e-86dd-2a89927baa4b
+
+  - name: omarchy-repos
+    folder: /home/mo/omarchy-repos
+    tabs:
+      - name: learning
+        run: claude --resume 2622dcd8-a858-4cf4-be2c-3a4d40b81ab5
+
+  - name: coach
+    folder: /home/mo/personal-coach-modarrib
+    tabs:
+      - name: shell
+
+  - name: marriage
+    folder: /home/mo/marraige-councelor-saas
+    tabs:
+      - name: shell
+
+  - name: occupysaas
+    folder: /home/mo/occupysaas
+    tabs:
+      - name: shell
