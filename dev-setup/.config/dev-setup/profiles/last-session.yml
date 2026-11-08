@@ -1,0 +1,123 @@
+# dev-setup profile: a snapshot of every window that was open on 2026-11-04,
+# taken from `hyprctl clients` + each terminal's process tree. Claude chats are
+# reopened with `claude --resume <session-id>` from the directory the session
+# belongs to. Workspace numbers follow hyprland/.config/hypr/monitors.lua
+# pinning (1-8 = ultrawide, 9-0 = laptop). See bin/.local/bin/AGENTS.md.
+#
+# Alacritty windows use `terminal: true`. foot windows are plain `cmd` entries,
+# because `terminal:` is profile-wide and dev-setup's `-e bash -ic` form is
+# Alacritty syntax (foot takes the command positionally, with no `-e`).
+#
+# This is a point-in-time snapshot: regenerate it, don't hand-maintain it.
+
+terminal: "uwsm-app -- alacritty"   # default terminal emulator launch command
+
+apps:
+  # WS1: scholar-site, 2 plain shells + the "About page UI improvement" chat
+  - id: ws1-scholar-shell-1
+    workspace: 1
+    terminal: true
+    cwd: /home/mo/dev/scholar-site-workspace/scholar-site
+
+  - id: ws1-scholar-claude
+    workspace: 1
+    terminal: true
+    cwd: /home/mo/dev/scholar-site-workspace/scholar-site
+    run: claude --resume 2adbc18d-30f4-4ca2-800b-bba4fd5d76da
+
+  - id: ws1-scholar-shell-2
+    workspace: 1
+    terminal: true
+    cwd: /home/mo/dev/scholar-site-workspace/scholar-site
+
+  # WS2: assim-haitham "README-CLIENT.md steps" chat, this omarchy-repos chat,
+  # and a plain shell in scholar-site-workspace/astro
+  - id: ws2-assim-claude
+    workspace: 2
+    terminal: true
+    cwd: /home/mo/dev/scholar-site-workspace/clients/assim-haitham
+    run: claude --resume acd7012b-3af0-46d7-a299-83759b2671c7
+
+  - id: ws2-omarchy-repos-claude
+    workspace: 2
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/omarchy-repos bash -ic \"claude --resume 2622dcd8-a858-4cf4-be2c-3a4d40b81ab5; exec bash\""
+
+  - id: ws2-astro-shell
+    workspace: 2
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/dev/scholar-site-workspace/astro"
+
+  # WS3: "assim-haitham-astro#1 Astro flavor backlog" chat + Firefox
+  - id: ws3-astro-claude
+    workspace: 3
+    terminal: true
+    cwd: /home/mo/dev/scholar-site-workspace/astro
+    run: claude --resume 0d32f242-3af5-4ce2-8f5b-9bfaec899548
+
+  - id: firefox
+    workspace: 3
+    cmd: "uwsm-app -- firefox"
+
+  # WS4: caribbean-fusion "Friday Pre-Orders menu toggle" chat + Zen
+  - id: ws4-caribbean-claude
+    workspace: 4
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/dev/caribbean-fusion bash -ic \"claude --resume 4bde57de-3958-4827-8be2-ab5b78980292; exec bash\""
+
+  - id: zen
+    workspace: 4
+    cmd: "uwsm-app -- zen-browser"
+
+  # WS5: 2 plain shells (their claude sessions had already exited)
+  - id: ws5-coach-shell
+    workspace: 5
+    terminal: true
+    cwd: /home/mo/personal-coach-modarrib
+
+  - id: ws5-marriage-shell
+    workspace: 5
+    terminal: true
+    cwd: /home/mo/marraige-councelor-saas
+
+  # WS6: one-way-to-paradise "Session history recovery" chat + Chromium
+  - id: ws6-paradise-claude
+    workspace: 6
+    terminal: true
+    cwd: /home/mo/dev/one-way-to-paradise
+    run: claude --resume 1d66da09-29c9-4a4e-86dd-2a89927baa4b
+
+  - id: chromium
+    workspace: 6
+    cmd: "uwsm-app -- chromium --restore-last-session"
+
+  # WS7: 4 pixeleers chats
+  - id: ws7-toolbox-claude
+    workspace: 7
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/pixeleers-toolbox bash -ic \"claude --resume 43703be6-ae80-492d-b348-15d1e74f3dca; exec bash\""
+
+  - id: ws7-pixeleers-token-claude
+    workspace: 7
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/dev/astro-themes/pixeleers bash -ic \"claude --resume 72465f77-d1ae-4409-9350-b34188845ecc; exec bash\""
+
+  - id: ws7-pixeleers-astro7-claude
+    workspace: 7
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/dev/astro-themes/pixeleers bash -ic \"claude --resume 0cdf4427-02d7-4c75-93fa-46e8886e286b; exec bash\""
+
+  - id: ws7-pixeleers-migration-claude
+    workspace: 7
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/dev/astro-themes/pixeleers bash -ic \"claude --resume da4098a6-74c7-4ece-88be-27ce7e251f88; exec bash\""
+
+  # WS9 (laptop): Bitwarden, scholar-site docker stack, 2 plain shells
+  - id: bitwarden
+    workspace: 9
+    cmd: "uwsm-app -- bitwarden-desktop"
+
+  - id: ws9-scholar-docker
+    workspace: 9
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/dev/scholar-site-workspace/scholar-site bash -ic \"sudo docker compose up; exec bash\""
+
+  - id: ws9-scholar-shell
+    workspace: 9
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/dev/scholar-site-workspace/scholar-site"
+
+  - id: ws9-occupysaas-shell
+    workspace: 9
+    cmd: "uwsm-app -- foot --working-directory=/home/mo/occupysaas"

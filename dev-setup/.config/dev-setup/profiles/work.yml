@@ -62,3 +62,15 @@ apps:
     workspace: 6
     terminal: true
     cwd: /home/mo/dev/lab/jammiaalquran/bakeoff/laravel-portal
+
+  # WS7: omarchy.org learning session: resume the Claude chat that wrote
+  # ~/learning-web, plus the guide itself open in omawrite
+  - id: term-omarchy-learning-claude
+    workspace: 7
+    terminal: true
+    cwd: /home/mo/omarchy-repos
+    run: claude --resume 2622dcd8-a858-4cf4-be2c-3a4d40b81ab5
+
+  - id: learning-guide
+    workspace: 7
+    cmd: "uwsm-app -- omawrite /home/mo/learning-web/README.md"
