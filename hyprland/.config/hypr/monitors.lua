@@ -46,11 +46,13 @@ hl.monitor({ output = "eDP-1", mode = "1920x1080@60", position = "1408x864", sca
 -- Hyprland creates a workspace on whichever monitor has focus, so dev-setup
 -- launching an app "into workspace 13" while the laptop has focus would put
 -- the ultrawide's workspace on the laptop. These match Omarchy's blocks above
--- (not persistent, so the bar still shows only what exists); if the blocks in
+-- (only the ultrawide's 1-8 are persistent); if the blocks in
 -- the state file ever change, change these with them.
 -- One rule per workspace: a range selector ("r[1-10]") wasn't honoured when
--- launching onto a new workspace.
+-- launching onto a new workspace. The ultrawide's first 8 (11-18) are
+-- persistent so its bar always shows 1-8; the bar always shows each monitor's
+-- 1-5 anyway, plus any others that have windows.
 for id = 1, 10 do
   hl.workspace_rule({ workspace = tostring(id), monitor = "eDP-1" })
-  hl.workspace_rule({ workspace = tostring(id + 10), monitor = "HDMI-A-1" })
+  hl.workspace_rule({ workspace = tostring(id + 10), monitor = "HDMI-A-1", persistent = id <= 8 })
 end
