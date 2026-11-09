@@ -27,8 +27,14 @@ Agent-facing notes for maintaining `dev-setup` and `dev-setup-prompt`. See `READ
 
 Defined in `~/dotfiles/hyprland/.config/hypr/monitors.lua` (stowed to `~/.config/hypr/monitors.lua`):
 
-- Ultrawide (`HDMI-A-1`): workspaces 1-8
-- Laptop (`eDP-1`): workspaces 9-0
+- Ultrawide (`HDMI-A-1`): Hyprland workspaces 11-20 (shown as 1-10 in its bar)
+- Laptop (`eDP-1`): Hyprland workspaces 1-10
+
+These are Omarchy 4.5's per-monitor blocks (`/usr/share/omarchy/default/hypr/monitor-workspaces.lua`,
+assignment in `~/.local/state/omarchy/monitor-workspaces`). `monitors.lua` adds one
+non-persistent rule per workspace so a workspace created by a launch opens on its
+block's monitor; don't add persistent pins or rules that cross blocks (they caused
+doubled numbers in the bar and Super+N pulling workspaces across monitors).
 
 Each `apps[]` entry's `workspace` in a profile file under
 `dev-setup/.config/dev-setup/profiles/` (its own package, see `CLAUDE.md`'s
@@ -66,13 +72,13 @@ terminal: "uwsm-app -- alacritty"   # default terminal emulator launch command
 
 apps:
   - id: term-dev          # unique — used as the override key, see below
-    workspace: 2
+    workspace: 12
     terminal: true         # true = launched via `terminal:`, cwd/run apply
     cwd: ~/dev
     run: npm run dev       # optional; omit for a plain shell
 
   - id: firefox
-    workspace: 3
+    workspace: 13
     cmd: "uwsm-app -- firefox"   # non-terminal entry: literal launch command
 ```
 

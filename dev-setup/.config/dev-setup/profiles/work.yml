@@ -1,76 +1,76 @@
 # dev-setup profile — each entry launches one app into a Hyprland workspace.
 # Workspace numbers follow hyprland/.config/hypr/monitors.lua pinning
-# (1-8 = ultrawide, 9-0 = laptop). See bin/.local/bin/AGENTS.md for the
+# (ultrawide = 11-20, laptop = 1-10; Omarchy per-monitor blocks). See bin/.local/bin/AGENTS.md for the
 # full schema reference and how the login popup / profile / override
 # mechanisms use this.
 
 terminal: "uwsm-app -- alacritty"   # default terminal emulator launch command
 
 apps:
-  # WS1: 3 plain terminals in scholar-site
+  # ultrawide 1 (WS11): 3 plain terminals in scholar-site
   - id: term-scholar-1
-    workspace: 1
+    workspace: 11
     terminal: true
     cwd: /home/mo/dev/scholar-site-workspace/scholar-site/
 
   - id: term-scholar-2
-    workspace: 1
+    workspace: 11
     terminal: true
     cwd: /home/mo/dev/scholar-site-workspace/scholar-site/
 
   - id: term-scholar-3
-    workspace: 1
+    workspace: 11
     terminal: true
     cwd: /home/mo/dev/scholar-site-workspace/scholar-site/
 
-  # WS2: 2 terminals in the assim-haitham client project, each running `claude`
+  # ultrawide 2 (WS12): 2 terminals in the assim-haitham client project, each running `claude`
   - id: term-scholar-claude-1
-    workspace: 2
+    workspace: 12
     terminal: true
     cwd: /home/mo/dev/scholar-site-workspace/clients/assim-haitham/
     run: claude
 
   - id: term-scholar-claude-2
-    workspace: 2
+    workspace: 12
     terminal: true
     cwd: /home/mo/dev/scholar-site-workspace/clients/assim-haitham/
     run: claude
 
   - id: firefox
-    workspace: 3
+    workspace: 13
     cmd: "uwsm-app -- firefox"
 
   - id: zen
-    workspace: 4
+    workspace: 14
     cmd: "uwsm-app -- zen-browser"
 
-  # WS5: 2 terminals, one per project, each running `claude`
+  # ultrawide 5 (WS15): 2 terminals, one per project, each running `claude`
   - id: term-coach-claude
-    workspace: 5
+    workspace: 15
     terminal: true
     cwd: /home/mo/personal-coach-modarrib
     run: claude
 
   - id: term-marriage-claude
-    workspace: 5
+    workspace: 15
     terminal: true
     cwd: /home/mo/marraige-councelor-saas
     run: claude
 
-  # WS6: plain terminal in the jammiaalquran bakeoff Laravel portal
+  # ultrawide 6 (WS16): plain terminal in the jammiaalquran bakeoff Laravel portal
   - id: term-laravel-portal
-    workspace: 6
+    workspace: 16
     terminal: true
     cwd: /home/mo/dev/lab/jammiaalquran/bakeoff/laravel-portal
 
-  # WS7: omarchy.org learning session: resume the Claude chat that wrote
+  # ultrawide 7 (WS17): omarchy.org learning session: resume the Claude chat that wrote
   # ~/learning-web, plus the guide itself open in omawrite
   - id: term-omarchy-learning-claude
-    workspace: 7
+    workspace: 17
     terminal: true
     cwd: /home/mo/omarchy-repos
     run: claude --resume 2622dcd8-a858-4cf4-be2c-3a4d40b81ab5
 
   - id: learning-guide
-    workspace: 7
+    workspace: 17
     cmd: "uwsm-app -- omawrite /home/mo/learning-web/README.md"

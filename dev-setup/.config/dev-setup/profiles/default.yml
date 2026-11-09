@@ -1,6 +1,6 @@
 # dev-setup profile — each entry launches one app into a Hyprland workspace.
 # Workspace numbers follow hyprland/.config/hypr/monitors.lua pinning
-# (1-8 = ultrawide, 9-0 = laptop). See bin/.local/bin/AGENTS.md for the
+# (ultrawide = 11-20, laptop = 1-10; Omarchy per-monitor blocks). See bin/.local/bin/AGENTS.md for the
 # full schema reference and how the login popup / profile / override
 # mechanisms use this.
 #
@@ -13,29 +13,29 @@ terminal: "uwsm-app -- alacritty"   # default terminal emulator launch command
 
 apps:
   - id: term-dev
-    workspace: 2
+    workspace: 12
     terminal: true
     cwd: ~/dev
 
   - id: term-pixeleers
-    workspace: 2
+    workspace: 12
     terminal: true
     cwd: /home/mo/dev/astro-themes/pixeleers
     run: tmux-project-bootstrapper /home/mo/dev/astro-themes/pixeleers
 
   - id: term-scratch
-    workspace: 2
+    workspace: 12
     terminal: true
     cwd: ~/dev
 
   - id: firefox
-    workspace: 3
+    workspace: 13
     cmd: "uwsm-app -- firefox"
 
   - id: zen
-    workspace: 4
+    workspace: 14
     cmd: "uwsm-app -- zen-browser"
 
   - id: omawrite
-    workspace: 9
+    workspace: 1
     cmd: "uwsm-app -- omawrite"

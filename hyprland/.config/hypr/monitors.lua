@@ -31,19 +31,26 @@ hl.monitor({ output = "HDMI-A-1", mode = "2560x1080@60", position = "0x0", scale
 -- top edge flush against the ultrawide's bottom edge.
 hl.monitor({ output = "eDP-1", mode = "1920x1080@60", position = "1408x864", scale = 1.5 })
 
--- Pin workspaces to monitors so switching workspaces never "steals" a
--- workspace from the other screen. Ultrawide is the main monitor, so it
--- gets more workspaces (1-8); laptop gets the rest (9-0).
--- The dev-setup profiles (dev-setup/.config/dev-setup/profiles/*.yml)
--- depend on this exact split — if monitor names or the pinning change,
--- update both together (see bin/.local/bin/AGENTS.md).
-hl.workspace_rule({ workspace = "1", monitor = "HDMI-A-1", default = true, persistent = true })
-hl.workspace_rule({ workspace = "2", monitor = "HDMI-A-1", persistent = true })
-hl.workspace_rule({ workspace = "3", monitor = "HDMI-A-1", persistent = true })
-hl.workspace_rule({ workspace = "4", monitor = "HDMI-A-1", persistent = true })
-hl.workspace_rule({ workspace = "5", monitor = "HDMI-A-1", persistent = true })
-hl.workspace_rule({ workspace = "6", monitor = "HDMI-A-1", persistent = true })
-hl.workspace_rule({ workspace = "7", monitor = "HDMI-A-1", persistent = true })
-hl.workspace_rule({ workspace = "8", monitor = "HDMI-A-1", persistent = true })
-hl.workspace_rule({ workspace = "9", monitor = "eDP-1", default = true, persistent = true })
-hl.workspace_rule({ workspace = "10", monitor = "eDP-1", persistent = true })
+-- Workspaces: Omarchy 4.5+ gives every monitor its own workspaces 1-10
+-- (default/hypr/monitor-workspaces.lua). Hyprland numbers them in blocks of
+-- ten per physical monitor, recorded in ~/.local/state/omarchy/monitor-workspaces:
+-- the laptop (eDP-1) owns Hyprland workspaces 1-10, the ultrawide (HDMI-A-1)
+-- owns 11-20. Super+N goes to slot N of the focused monitor, and the bar labels
+-- each monitor's own workspaces 1-10. Don't pin workspaces here: workspace
+-- rules fight that system (doubled numbers in the bar, Super+N pulling
+-- workspaces across monitors).
+-- The dev-setup profiles (dev-setup/.config/dev-setup/profiles/*.yml) use the
+-- Hyprland ids: ultrawide N = 10+N, laptop N = N (see bin/.local/bin/AGENTS.md).
+
+-- New workspaces open on the monitor whose block they belong to. Without this
+-- Hyprland creates a workspace on whichever monitor has focus, so dev-setup
+-- launching an app "into workspace 13" while the laptop has focus would put
+-- the ultrawide's workspace on the laptop. These match Omarchy's blocks above
+-- (not persistent, so the bar still shows only what exists); if the blocks in
+-- the state file ever change, change these with them.
+-- One rule per workspace: a range selector ("r[1-10]") wasn't honoured when
+-- launching onto a new workspace.
+for id = 1, 10 do
+  hl.workspace_rule({ workspace = tostring(id), monitor = "eDP-1" })
+  hl.workspace_rule({ workspace = tostring(id + 10), monitor = "HDMI-A-1" })
+end

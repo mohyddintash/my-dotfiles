@@ -24,7 +24,7 @@ tmux-project-bootstrapper ~/dev/astro-themes/pixeleers
 
 # dev-setup
 
-Launches a daily app layout into fixed workspaces: terminals, browsers, editor, whatever you configure. Relies on the workspace-to-monitor pinning in `~/.config/hypr/monitors.lua` (ultrawide = workspaces 1-8, laptop = workspaces 9-0) to land each app on the right screen.
+Launches a daily app layout into fixed workspaces: terminals, browsers, editor, whatever you configure. Workspace numbers are Hyprland ids in Omarchy's per-monitor blocks: the laptop owns 1-10 and the ultrawide 11-20 (its "3" in the bar is workspace 13). Rules in `~/.config/hypr/monitors.lua` make each new workspace open on the monitor that owns it, so every app lands on the right screen.
 
 The app list is **data, not code**, and lives in **profiles** — YAML files under `~/.config/dev-setup/profiles/` (stowed from `~/dotfiles/dev-setup/.config/dev-setup/profiles/`), not in the script itself. Ships with one profile, `default`, but you can add more (e.g. `work`, `personal`, `browsing`) — see below.
 
@@ -55,18 +55,18 @@ terminal: "uwsm-app -- alacritty"   # default terminal emulator launch command
 
 apps:
   - id: term-dev
-    workspace: 2
+    workspace: 12
     terminal: true
     cwd: ~/dev
 
   - id: term-pixeleers
-    workspace: 2
+    workspace: 12
     terminal: true
     cwd: /home/mo/dev/astro-themes/pixeleers
     run: npm run dev              # optional: command to run on start
 
   - id: firefox
-    workspace: 3
+    workspace: 13
     cmd: "uwsm-app -- firefox"
 ```
 

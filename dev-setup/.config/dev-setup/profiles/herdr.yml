@@ -2,33 +2,33 @@
 # Herdr app. herdr-session fills Herdr from herdr/last-session.yml (one space
 # per project, one tab per Claude chat); it opens no window of its own.
 # Workspace numbers follow hyprland/.config/hypr/monitors.lua pinning
-# (1-8 = ultrawide, 9-0 = laptop). See bin/.local/bin/AGENTS.md.
+# (ultrawide = 11-20, laptop = 1-10; Omarchy per-monitor blocks). See bin/.local/bin/AGENTS.md.
 
 apps:
   - id: herdr
-    workspace: 1
+    workspace: 11
     cmd: "uwsm-app -- herdr-app"
 
   - id: herdr-session
-    workspace: 1
+    workspace: 11
     cmd: "herdr-session last-session"
 
   - id: firefox
-    workspace: 3
+    workspace: 13
     cmd: "uwsm-app -- firefox"
 
   - id: zen
-    workspace: 4
+    workspace: 14
     cmd: "uwsm-app -- zen-browser"
 
   - id: chromium
-    workspace: 6
+    workspace: 16
     cmd: "uwsm-app -- chromium --restore-last-session"
 
   - id: learning-guide
-    workspace: 7
+    workspace: 17
     cmd: "uwsm-app -- omawrite /home/mo/learning-web/README.md"
 
   - id: bitwarden
-    workspace: 9
+    workspace: 1
     cmd: "uwsm-app -- bitwarden-desktop"

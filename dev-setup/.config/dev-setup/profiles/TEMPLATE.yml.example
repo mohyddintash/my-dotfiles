@@ -9,8 +9,8 @@
 #
 # Workspace numbers must follow hyprland/.config/hypr/monitors.conf's
 # pinning (check with `hyprctl monitors` if unsure which is which):
-#   - ultrawide (HDMI-A-1): workspaces 1-8
-#   - laptop    (eDP-1):    workspaces 9-0
+#   - ultrawide (HDMI-A-1): Hyprland workspaces 11-20 (its 1-10 in the bar)
+#   - laptop    (eDP-1):    Hyprland workspaces 1-10
 
 # Default terminal emulator command for every `terminal: true` entry below.
 # NOTE: this is profile-wide — there's currently no way to give individual
@@ -23,7 +23,7 @@ apps:
   - id: my-terminal-entry        # REQUIRED, unique across this file — used
                                   # to target this entry from the Customize
                                   # override picker.
-    workspace: 2                 # REQUIRED — see the monitor pinning note above.
+    workspace: 12                 # REQUIRED — see the monitor pinning note above.
     terminal: true                # marks this as a terminal-type entry.
     cwd: /path/to/your/project   # PLACEHOLDER — replace with a real,
                                   # existing directory. `~` is expanded.
@@ -40,7 +40,7 @@ apps:
   # Anything that isn't a terminal: a browser, an editor, any GUI app.
   # `cmd` is the literal, full launch command, used as-is.
   - id: my-app-entry             # REQUIRED, unique.
-    workspace: 3                 # REQUIRED.
+    workspace: 13                 # REQUIRED.
     cmd: "uwsm-app -- firefox"   # REQUIRED for this entry type — no `cwd`/`run`.
                                   # Chrome/Chromium example, since it has a real
                                   # CLI flag for this (Firefox does not — that's
