@@ -13,27 +13,27 @@ terminal: "uwsm-app -- alacritty"   # default terminal emulator launch command
 
 apps:
   - id: term-dev
-    workspace: 12
+    workspace: 11
     terminal: true
     cwd: ~/dev
 
   - id: term-pixeleers
-    workspace: 12
+    workspace: 11
     terminal: true
     cwd: /home/mo/dev/astro-themes/pixeleers
     run: tmux-project-bootstrapper /home/mo/dev/astro-themes/pixeleers
 
   - id: term-scratch
-    workspace: 12
+    workspace: 11
     terminal: true
     cwd: ~/dev
 
   - id: firefox
-    workspace: 13
+    workspace: 12
     cmd: "uwsm-app -- firefox"
 
   - id: zen
-    workspace: 14
+    workspace: 13
     cmd: "uwsm-app -- zen-browser"
 
   - id: omawrite
