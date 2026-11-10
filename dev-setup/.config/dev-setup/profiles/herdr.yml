@@ -14,19 +14,19 @@ apps:
     cmd: "herdr-session last-session"
 
   - id: firefox
-    workspace: 13
+    workspace: 12
     cmd: "uwsm-app -- firefox"
 
   - id: zen
-    workspace: 14
+    workspace: 13
     cmd: "uwsm-app -- zen-browser"
 
   - id: chromium
-    workspace: 16
+    workspace: 14
     cmd: "uwsm-app -- chromium --restore-last-session"
 
   - id: learning-guide
-    workspace: 17
+    workspace: 15
     cmd: "uwsm-app -- omawrite /home/mo/learning-web/README.md"
 
   - id: bitwarden
