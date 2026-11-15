@@ -19,7 +19,7 @@ DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STOW_PACKAGES=(
   hyprland nvim ghostty kitty alacritty git fish tmux zed
   btop fastfetch lazygit lazydocker mise imv makima
-  swayosd starship bin dev-setup omarchy
+  swayosd starship bin dev-setup omarchy claude-desktop
 )
 
 conflicts=0

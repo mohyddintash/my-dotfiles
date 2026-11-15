@@ -30,6 +30,7 @@ Each package is a directory that mirrors `$HOME`. Stow creates symlinks from
 ├── makima/         → ~/.config/makima/
 ├── swayosd/        → ~/.config/swayosd/
 ├── starship/       → ~/.config/starship.toml
+├── claude-desktop/ → ~/.config/claude-desktop-flags.conf  (--password-store=gnome-libsecret; Electron can't detect the keyring on Hyprland)
 ├── bin/            → ~/.local/bin/         (tm-sessionizer, dev-setup, ...)
 ├── dev-setup/      → ~/.config/dev-setup/  (dev-setup's profiles/*.yml)
 └── quickshell-plugins/mo.lock/  (NOT stowed — copied to ~/.config/omarchy/plugins/mo.lock
@@ -84,7 +85,7 @@ cd ~/dotfiles
 # diff command and the steps to resolve it, and is safe to re-run.
 stow -t ~ hyprland nvim ghostty kitty alacritty git fish tmux zed \
          btop fastfetch lazygit lazydocker mise imv makima \
-         swayosd starship bin dev-setup omarchy
+         swayosd starship bin dev-setup omarchy claude-desktop
 
 # quickshell-plugins/ is copied, not stowed (see Structure above):
 for plugin in quickshell-plugins/*/; do
